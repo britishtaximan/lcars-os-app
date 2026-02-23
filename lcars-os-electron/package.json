@@ -1,0 +1,42 @@
+{
+  "name": "lcars-os-electron",
+  "version": "1.0.0",
+  "description": "LCARS OS — Voyager Edition (Electron)",
+  "author": "Barry Lynch",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --mac",
+    "build-all": "electron-builder --mac --win --linux"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.0"
+  },
+  "build": {
+    "appId": "com.lcars.os.voyager",
+    "productName": "LCARS OS",
+    "files": [
+      "main.js",
+      "preload.js",
+      "node_modules/**/*"
+    ],
+    "extraFiles": [
+      {
+        "from": "../index.html",
+        "to": "index.html"
+      }
+    ],
+    "mac": {
+      "category": "public.app-category.utilities",
+      "target": ["dir"]
+    },
+    "win": {
+      "target": ["nsis"]
+    },
+    "linux": {
+      "target": ["AppImage"]
+    }
+  }
+}

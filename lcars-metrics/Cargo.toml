@@ -1,0 +1,12 @@
+[package]
+name = "lcars-metrics"
+version = "1.0.0"
+description = "LCARS OS — Shared metrics helper (used by both Tauri and Electron)"
+authors = ["Barry"]
+edition = "2021"
+
+[dependencies]
+sysinfo = "0.31"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+dirs = "5"

@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Rust build artifacts
+target/
+
+# Electron build output
+lcars-os-electron/dist/
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Old/legacy files
+src-tauri/

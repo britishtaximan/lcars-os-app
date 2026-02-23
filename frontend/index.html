@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Antonio:wght@400;700&display=swap" rel="stylesheet">
+<title>LCARS OS — Voyager Edition</title>
+<style>
+  :root {
+    --lcars-orange: #ff9900;
+    --lcars-peach: #ff9966;
+    --lcars-gold: #cc9933;
+    --lcars-blue: #6688cc;
+    --lcars-lightblue: #99ccff;
+    --lcars-teal: #66cccc;
+    --lcars-cyan: #00cccc;
+    --lcars-purple: #cc77ff;
+    --lcars-lavender: #9999ff;
+    --lcars-pink: #cc6699;
+    --lcars-red: #cc4444;
+    --lcars-magenta: #cc66cc;
+    --lcars-bg: #000000;
+    --lcars-text: #ff9900;
+    --lcars-sidebar-w: 180px;
+    --lcars-header-h: 90px;
+    --lcars-footer-h: 50px;
+    --lcars-radius: 40px;
+    --lcars-font: 'Antonio', 'Helvetica Neue', Arial, sans-serif;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--lcars-bg); color:var(--lcars-text); font-family:var(--lcars-font); overflow:hidden; height:100vh; width:100vw; cursor:default; user-select:none; }
+  .lcars-frame { display:grid; grid-template-columns:var(--lcars-sidebar-w) 1fr; grid-template-rows:var(--lcars-header-h) 1fr var(--lcars-footer-h); height:100vh; width:100vw; gap:3px; }
+  .lcars-sidebar { grid-row:1/4; display:flex; flex-direction:column; gap:3px; }
+  .sidebar-top { background:var(--lcars-blue); height:120px; border-radius:0 0 var(--lcars-radius) 0; display:flex; align-items:flex-end; justify-content:flex-end; padding:8px 12px; font-size:14px; color:#000; font-weight:700; letter-spacing:2px; }
+  .sidebar-buttons { display:flex; flex-direction:column; gap:3px; flex:1; }
+  .sidebar-btn { padding:8px 12px; font-family:var(--lcars-font); font-size:16px; font-weight:700; letter-spacing:1px; text-transform:uppercase; text-align:right; border:none; cursor:pointer; color:#000; transition:filter 0.15s,transform 0.1s; min-height:42px; display:flex; align-items:center; justify-content:flex-end; }
+  .sidebar-btn:hover { filter:brightness(1.3); transform:scale(1.02); }
+  .sidebar-btn:active { filter:brightness(0.8); }
+  .sidebar-btn.active { filter:brightness(1.4); box-shadow:inset -4px 0 0 #fff; }
+  .sidebar-top, .header-bar { -webkit-app-region: drag; }
+  .sidebar-btn, .header-segment { -webkit-app-region: no-drag; }
+  .sidebar-bottom { background:var(--lcars-purple); height:80px; border-radius:0 var(--lcars-radius) 0 0; display:flex; align-items:flex-start; justify-content:flex-end; padding:8px 12px; font-size:11px; color:#000; font-weight:700; letter-spacing:2px; }
+  .lcars-header { display:flex; align-items:stretch; gap:3px; }
+  .header-elbow { background:var(--lcars-blue); width:160px; border-radius:0 0 0 var(--lcars-radius); position:relative; }
+  .header-elbow::after { content:''; position:absolute; bottom:0; right:-30px; width:30px; height:100%; background:var(--lcars-bg); border-radius:0 var(--lcars-radius) 0 0; }
+  .header-bar { flex:1; display:flex; align-items:stretch; gap:3px; }
+  .header-segment { flex:1; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; letter-spacing:2px; color:#000; text-transform:uppercase; }
+  .header-title { flex:3; display:flex; align-items:center; justify-content:center; font-size:26px; font-weight:700; letter-spacing:6px; color:var(--lcars-lightblue); text-transform:uppercase; background:transparent; }
+  .lcars-content { background:rgba(10,15,30,0.5); border:1px solid rgba(102,136,204,0.15); border-radius:8px; overflow:hidden; position:relative; }
+  .lcars-footer { display:flex; align-items:stretch; gap:3px; }
+  .footer-elbow { background:var(--lcars-purple); width:160px; border-radius:var(--lcars-radius) 0 0 0; }
+  .footer-bar { flex:1; display:flex; align-items:stretch; gap:3px; }
+  .footer-segment { flex:1; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; letter-spacing:1px; color:#000; }
+  .footer-status { flex:4; display:flex; align-items:center; padding:0 20px; font-size:14px; letter-spacing:2px; color:var(--lcars-teal); background:transparent; }
+  .panel-container { width:100%; height:100%; display:none; padding:20px; overflow-y:auto; }
+  .panel-container.active { display:block; }
+  .panel-grid { display:grid; gap:16px; }
+  .panel { background:rgba(10,20,40,0.6); border:1px solid rgba(102,136,204,0.25); border-radius:12px; padding:16px; position:relative; overflow:hidden; }
+  .panel::before { content:''; position:absolute; top:0; left:0; width:5px; height:100%; border-radius:12px 0 0 12px; }
+  .panel-header { font-size:13px; font-weight:700; letter-spacing:2px; text-transform:uppercase; margin-bottom:12px; padding-left:12px; }
+  .panel-body { padding-left:12px; }
+  .panel.blue::before { background:var(--lcars-blue); } .panel.blue .panel-header { color:var(--lcars-lightblue); }
+  .panel.teal::before { background:var(--lcars-teal); } .panel.teal .panel-header { color:var(--lcars-teal); }
+  .panel.orange::before { background:var(--lcars-orange); } .panel.orange .panel-header { color:var(--lcars-orange); }
+  .panel.purple::before { background:var(--lcars-purple); } .panel.purple .panel-header { color:var(--lcars-purple); }
+  .panel.gold::before { background:var(--lcars-gold); } .panel.gold .panel-header { color:var(--lcars-gold); }
+  .panel.pink::before { background:var(--lcars-pink); } .panel.pink .panel-header { color:var(--lcars-pink); }
+  .status-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px; }
+  .status-item { display:flex; flex-direction:column; gap:4px; }
+  .status-label { font-size:11px; letter-spacing:2px; color:var(--lcars-gold); text-transform:uppercase; }
+  .status-value { font-size:28px; font-weight:700; color:var(--lcars-lightblue); line-height:1; }
+  .status-bar-track { height:8px; background:rgba(255,255,255,0.05); border-radius:4px; overflow:hidden; margin-top:4px; }
+  .status-bar-fill { height:100%; border-radius:4px; transition:width 1s ease; }
+  .graph-canvas { width:100%; height:120px; display:block; }
+  .sensor-canvas { width:240px; height:240px; }
+  .calc-display { background:rgba(0,0,0,0.6); border:1px solid var(--lcars-blue); border-radius:6px; padding:12px 16px; text-align:right; font-size:32px; font-weight:700; color:var(--lcars-lightblue); margin-bottom:12px; min-height:54px; overflow:hidden; font-family:var(--lcars-font); letter-spacing:2px; }
+  .calc-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; }
+  .calc-btn { padding:14px 8px; font-family:var(--lcars-font); font-size:18px; font-weight:700; border:none; border-radius:6px; cursor:pointer; color:#000; transition:filter 0.1s; letter-spacing:1px; }
+  .calc-btn:hover { filter:brightness(1.3); } .calc-btn:active { filter:brightness(0.7); }
+  .calc-btn.num { background:var(--lcars-blue); } .calc-btn.op { background:var(--lcars-orange); }
+  .calc-btn.fn { background:var(--lcars-teal); } .calc-btn.eq { background:var(--lcars-gold); }
+  .calc-btn.clear { background:var(--lcars-red); color:#fff; }
+  .file-path-bar { display:flex; align-items:center; gap:6px; padding:8px 12px; background:rgba(0,0,0,0.4); border:1px solid var(--lcars-blue); border-radius:6px; margin-bottom:12px; font-size:14px; color:var(--lcars-lightblue); letter-spacing:1px; }
+  .file-list { display:flex; flex-direction:column; gap:2px; }
+  .file-item { display:flex; align-items:center; gap:12px; padding:10px 14px; background:rgba(0,0,0,0.3); border-radius:6px; cursor:pointer; transition:background 0.15s; }
+  .file-item:hover { background:rgba(102,136,204,0.15); }
+  .file-icon { font-size:20px; width:28px; text-align:center; }
+  .file-name { flex:1; font-size:15px; color:var(--lcars-lightblue); letter-spacing:1px; }
+  .file-size { font-size:12px; color:var(--lcars-gold); letter-spacing:1px; }
+  .file-date { font-size:12px; color:var(--lcars-teal); letter-spacing:1px; }
+  .weather-main { display:flex; align-items:center; gap:20px; margin-bottom:16px; }
+  .weather-temp { font-size:56px; font-weight:700; color:var(--lcars-lightblue); line-height:1; }
+  .weather-desc { font-size:16px; color:var(--lcars-teal); letter-spacing:2px; text-transform:uppercase; }
+  .weather-details { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  .weather-detail-item { text-align:center; }
+  .weather-detail-label { font-size:11px; color:var(--lcars-gold); letter-spacing:1px; text-transform:uppercase; }
+  .weather-detail-value { font-size:22px; font-weight:700; color:var(--lcars-lightblue); }
+  .clock-main { text-align:center; padding:20px; }
+  .clock-time { font-size:72px; font-weight:700; color:var(--lcars-lightblue); letter-spacing:4px; line-height:1; margin-bottom:8px; }
+  .clock-date { font-size:20px; color:var(--lcars-teal); letter-spacing:3px; margin-bottom:4px; }
+  .clock-stardate { font-size:24px; color:var(--lcars-orange); letter-spacing:3px; }
+  .clock-analog { width:200px; height:200px; margin:20px auto; }
+  .task-item { display:flex; align-items:center; gap:10px; padding:10px 14px; background:rgba(0,0,0,0.3); border-radius:6px; margin-bottom:4px; }
+  .task-item.completed .task-text { text-decoration:line-through; opacity:0.5; }
+  .task-item.completed .task-due { opacity:0.5; }
+  .task-item.overdue .task-due { color:var(--lcars-red); }
+  .task-check { width:20px; height:20px; border:2px solid var(--lcars-teal); border-radius:4px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .task-check.done { background:var(--lcars-teal); }
+  .task-text { flex:1; font-size:15px; color:var(--lcars-lightblue); letter-spacing:1px; }
+  .task-priority { font-size:11px; letter-spacing:1px; padding:2px 8px; border-radius:4px; font-weight:700; }
+  .task-priority.high { background:var(--lcars-red); color:#fff; }
+  .task-priority.medium { background:var(--lcars-orange); color:#000; }
+  .task-priority.low { background:var(--lcars-teal); color:#000; }
+  .task-due { font-size:11px; letter-spacing:1px; color:var(--lcars-gold); white-space:nowrap; }
+  .task-delete { color:var(--lcars-red); cursor:pointer; font-size:16px; padding:0 4px; }
+  .task-delete:hover { filter:brightness(1.5); }
+  .task-input-row { display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap; }
+  .task-input { flex:1; min-width:200px; background:rgba(0,0,0,0.5); border:1px solid var(--lcars-blue); border-radius:6px; padding:10px 14px; color:var(--lcars-lightblue); font-family:var(--lcars-font); font-size:15px; letter-spacing:1px; outline:none; }
+  .task-input::placeholder { color:rgba(153,204,255,0.3); }
+  .task-select { background:rgba(0,0,0,0.5); border:1px solid var(--lcars-blue); border-radius:6px; padding:10px; color:var(--lcars-lightblue); font-family:var(--lcars-font); font-size:13px; outline:none; }
+  .task-date-input { background:rgba(0,0,0,0.5); border:1px solid var(--lcars-blue); border-radius:6px; padding:10px; color:var(--lcars-lightblue); font-family:var(--lcars-font); font-size:13px; outline:none; color-scheme:dark; }
+  .task-add-btn { padding:10px 20px; font-family:var(--lcars-font); font-size:14px; font-weight:700; letter-spacing:1px; border:none; border-radius:6px; cursor:pointer; color:#000; background:var(--lcars-teal); text-transform:uppercase; }
+  .task-add-btn:hover { filter:brightness(1.3); }
+  .task-filters { display:flex; gap:6px; margin-bottom:12px; }
+  .task-filter-btn { padding:6px 14px; font-family:var(--lcars-font); font-size:12px; font-weight:700; letter-spacing:1px; border:none; border-radius:4px; cursor:pointer; color:#000; background:var(--lcars-blue); text-transform:uppercase; opacity:0.6; }
+  .task-filter-btn.active { opacity:1; }
+  .task-filter-btn:hover { filter:brightness(1.2); }
+  .task-stats { font-size:12px; color:var(--lcars-gold); letter-spacing:1px; margin-top:8px; }
+  .city-search-input { flex:1; background:rgba(0,0,0,0.5); border:1px solid var(--lcars-blue); border-radius:6px; padding:10px 14px; color:var(--lcars-lightblue); font-family:var(--lcars-font); font-size:15px; letter-spacing:1px; outline:none; }
+  .city-search-input::placeholder { color:rgba(153,204,255,0.3); }
+  .city-result { padding:10px 14px; background:rgba(0,0,0,0.3); border-radius:6px; cursor:pointer; margin-bottom:4px; color:var(--lcars-lightblue); font-size:14px; letter-spacing:1px; }
+  .city-result:hover { background:rgba(102,136,204,0.15); }
+  ::-webkit-scrollbar { width:8px; } ::-webkit-scrollbar-track { background:rgba(0,0,0,0.3); } ::-webkit-scrollbar-thumb { background:var(--lcars-blue); border-radius:4px; }
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.6;} }
+  @keyframes scanline { 0%{transform:translateY(-100%);} 100%{transform:translateY(100vh);} }
+  .scanline-overlay { position:fixed; top:0; left:0; width:100%; height:4px; background:linear-gradient(transparent,rgba(102,204,204,0.04),transparent); animation:scanline 8s linear infinite; pointer-events:none; z-index:1000; }
+  .pulse { animation:pulse 2s ease-in-out infinite; }
+  .boot-screen { position:fixed; top:0; left:0; width:100vw; height:100vh; background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:9999; transition:opacity 0.8s ease; }
+  .boot-screen.hidden { opacity:0; pointer-events:none; }
+  .boot-text { font-family:var(--lcars-font); font-size:16px; color:var(--lcars-teal); letter-spacing:3px; text-transform:uppercase; opacity:0; transition:opacity 0.3s; margin:4px 0; }
+  .boot-text.visible { opacity:1; }
+  .boot-title { font-size:42px; color:var(--lcars-lightblue); letter-spacing:12px; margin-bottom:40px; }
+  .boot-progress { width:400px; height:6px; background:rgba(255,255,255,0.05); border-radius:3px; margin-top:30px; overflow:hidden; }
+  .boot-progress-fill { height:100%; background:var(--lcars-teal); border-radius:3px; width:0%; transition:width 0.3s ease; }
+  .alert-bar { position:fixed; top:0; left:0; right:0; padding:10px 20px; text-align:center; font-size:14px; font-weight:700; letter-spacing:3px; text-transform:uppercase; z-index:500; transform:translateY(-100%); transition:transform 0.4s ease; }
+  .alert-bar.show { transform:translateY(0); }
+  .alert-bar.red { background:var(--lcars-red); color:#fff; }
+  .alert-bar.yellow { background:var(--lcars-orange); color:#000; }
+  .alert-bar.blue { background:var(--lcars-blue); color:#000; }
+  .starfield-canvas { position:fixed; top:0; left:0; width:100%; height:100%; z-index:-1; opacity:0.3; }
+  .comms-grid-item { display:flex; align-items:center; gap:10px; padding:8px 0; }
+  .comms-icon { font-size:20px; width:28px; text-align:center; }
+  .comms-label { font-size:11px; letter-spacing:2px; color:var(--lcars-gold); text-transform:uppercase; }
+  .comms-value { font-size:16px; font-weight:700; color:var(--lcars-lightblue); }
+  .app-launcher { display:inline-flex; flex-direction:column; align-items:center; gap:6px; padding:12px; cursor:pointer; border-radius:8px; transition:background 0.15s; width:80px; text-align:center; }
+  .app-launcher:hover { background:rgba(102,136,204,0.15); }
+  .app-launcher-icon { font-size:28px; }
+  .app-launcher-name { font-size:11px; color:var(--lcars-lightblue); letter-spacing:1px; }
+</style>
+</head>
+<body>
+<canvas class="starfield-canvas" id="starfield"></canvas>
+<div class="scanline-overlay"></div>
+<div class="alert-bar" id="alertBar"></div>
+
+<div class="boot-screen" id="bootScreen">
+  <div class="boot-text boot-title" id="bootTitle">LCARS OS</div>
+  <div class="boot-text" id="boot1">Initializing Voyager Operating System...</div>
+  <div class="boot-text" id="boot2">Loading Bio-Neural Gel Pack Interface...</div>
+  <div class="boot-text" id="boot3">Establishing Quantum Core Link...</div>
+  <div class="boot-text" id="boot4">Calibrating Sensor Arrays...</div>
+  <div class="boot-text" id="boot5">Loading LCARS Display Modules...</div>
+  <div class="boot-text" id="boot6">System Ready — Welcome Aboard</div>
+  <div class="boot-progress"><div class="boot-progress-fill" id="bootProgress"></div></div>
+</div>
+
+<div class="lcars-frame" id="mainFrame" style="opacity:0;">
+  <div class="lcars-sidebar">
+    <div class="sidebar-top">LCARS 47</div>
+    <div class="sidebar-buttons">
+      <button class="sidebar-btn active" style="background:var(--lcars-orange);" onclick="switchPanel('ops')" id="btn-ops">Operations</button>
+      <button class="sidebar-btn" style="background:var(--lcars-teal);" onclick="switchPanel('tactical')" id="btn-tactical">Tactical</button>
+      <button class="sidebar-btn" style="background:var(--lcars-lightblue);" onclick="switchPanel('science')" id="btn-science">Science</button>
+      <button class="sidebar-btn" style="background:var(--lcars-gold);" onclick="switchPanel('comms')" id="btn-comms">Comms</button>
+      <button class="sidebar-btn" style="background:var(--lcars-lavender);" onclick="switchPanel('computer')" id="btn-computer">Computer</button>
+      <button class="sidebar-btn" style="background:var(--lcars-peach);" onclick="switchPanel('files')" id="btn-files">Database</button>
+      <button class="sidebar-btn" style="background:var(--lcars-pink);" onclick="switchPanel('notepad')" id="btn-notepad">Log Entry</button>
+      <button class="sidebar-btn" style="background:var(--lcars-cyan);" onclick="switchPanel('settings')" id="btn-settings">Config</button>
+    </div>
+    <div class="sidebar-bottom">NCC-74656</div>
+  </div>
+
+  <div class="lcars-header">
+    <div class="header-elbow"></div>
+    <div class="header-bar">
+      <div class="header-segment" style="background:var(--lcars-teal);" id="headerStardate">SD 79145.7</div>
+      <div class="header-title" id="panelTitle">OPERATIONS</div>
+      <div class="header-segment" style="background:var(--lcars-gold);" id="headerTime">00:00:00</div>
+      <div class="header-segment" style="background:var(--lcars-orange);"><span id="headerStatus" class="pulse">● ONLINE</span></div>
+    </div>
+  </div>
+
+  <div class="lcars-content">
+    <!-- OPS -->
+    <div class="panel-container active" id="panel-ops">
+      <div class="panel-grid" style="grid-template-columns:1fr 1fr;">
+        <div class="panel blue">
+          <div class="panel-header">Processor Core</div>
+          <div class="panel-body">
+            <div class="status-item"><span class="status-label">CPU Utilization</span><span class="status-value" id="cpuValue">0%</span><div class="status-bar-track"><div class="status-bar-fill" id="cpuBar" style="width:0%;background:var(--lcars-blue);"></div></div></div>
+            <canvas class="graph-canvas" id="cpuGraph"></canvas>
+          </div>
+        </div>
+        <div class="panel teal">
+          <div class="panel-header">Memory Banks</div>
+          <div class="panel-body">
+            <div class="status-item"><span class="status-label">Memory Allocation</span><span class="status-value" id="memValue">0%</span><div class="status-bar-track"><div class="status-bar-fill" id="memBar" style="width:0%;background:var(--lcars-teal);"></div></div></div>
+            <canvas class="graph-canvas" id="memGraph"></canvas>
+          </div>
+        </div>
+        <div class="panel orange">
+          <div class="panel-header">Power Grid</div>
+          <div class="panel-body">
+            <div class="status-grid">
+              <div class="status-item"><span class="status-label">Disk Free</span><span class="status-value" id="warpPower">—</span><div class="status-bar-track"><div class="status-bar-fill" id="warpBar" style="width:0%;background:var(--lcars-orange);"></div></div></div>
+              <div class="status-item"><span class="status-label">Battery</span><span class="status-value" id="impulsePower">—</span><div class="status-bar-track"><div class="status-bar-fill" id="impulseBar" style="width:0%;background:var(--lcars-orange);"></div></div></div>
+              <div class="status-item"><span class="status-label">Thermal</span><span class="status-value" id="auxPower">—</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="panel purple">
+          <div class="panel-header">Network Subspace</div>
+          <div class="panel-body">
+            <div class="status-item"><span class="status-label">Bandwidth</span><span class="status-value" id="netValue">0 Mb/s</span><div class="status-bar-track"><div class="status-bar-fill" id="netBar" style="width:0%;background:var(--lcars-purple);"></div></div></div>
+            <canvas class="graph-canvas" id="netGraph"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TACTICAL -->
+    <div class="panel-container" id="panel-tactical">
+      <div class="panel-grid" style="grid-template-columns:1fr 1fr;">
+        <div class="panel blue" style="grid-column:1/-1;">
+          <div class="panel-header">Shield Status</div>
+          <div class="panel-body">
+            <div class="status-grid" style="grid-template-columns:repeat(4,1fr);">
+              <div class="status-item"><span class="status-label">Forward</span><span class="status-value" id="shieldFwd">100%</span><div class="status-bar-track"><div class="status-bar-fill" id="shieldFwdBar" style="width:100%;background:var(--lcars-blue);"></div></div></div>
+              <div class="status-item"><span class="status-label">Aft</span><span class="status-value" id="shieldAft">100%</span><div class="status-bar-track"><div class="status-bar-fill" id="shieldAftBar" style="width:100%;background:var(--lcars-blue);"></div></div></div>
+              <div class="status-item"><span class="status-label">Port</span><span class="status-value" id="shieldPort">100%</span><div class="status-bar-track"><div class="status-bar-fill" id="shieldPortBar" style="width:100%;background:var(--lcars-blue);"></div></div></div>
+              <div class="status-item"><span class="status-label">Starboard</span><span class="status-value" id="shieldStbd">100%</span><div class="status-bar-track"><div class="status-bar-fill" id="shieldStbdBar" style="width:100%;background:var(--lcars-blue);"></div></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="panel teal">
+          <div class="panel-header">Sensor Sweep</div>
+          <div class="panel-body" style="display:flex;justify-content:center;"><canvas class="sensor-canvas" id="sensorCanvas" width="240" height="240"></canvas></div>
+        </div>
+        <div class="panel orange">
+          <div class="panel-header">Weapons Array</div>
+          <div class="panel-body">
+            <div class="status-grid" style="grid-template-columns:1fr;">
+              <div class="status-item"><span class="status-label">Phaser Banks</span><span class="status-value" style="color:var(--lcars-teal);">CHARGED</span><div class="status-bar-track"><div class="status-bar-fill" style="width:100%;background:var(--lcars-teal);"></div></div></div>
+              <div class="status-item"><span class="status-label">Photon Torpedoes</span><span class="status-value">38</span></div>
+              <div class="status-item"><span class="status-label">Targeting Lock</span><span class="status-value" style="color:var(--lcars-gold);">STANDBY</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCIENCE -->
+    <div class="panel-container" id="panel-science">
+      <div class="panel-grid" style="grid-template-columns:1fr 1fr;">
+        <div class="panel teal" style="grid-column:1/-1;">
+          <div class="panel-header">Astrometrics</div>
+          <div class="panel-body"><canvas id="astrometricsCanvas" width="800" height="250" style="width:100%;height:250px;border-radius:8px;"></canvas></div>
+        </div>
+        <div class="panel blue">
+          <div class="panel-header">Stellar Cartography</div>
+          <div class="panel-body">
+            <div class="status-grid" style="grid-template-columns:1fr;">
+              <div class="status-item"><span class="status-label">Current Sector</span><span class="status-value" style="font-size:20px;">Delta Quadrant — Grid 986</span></div>
+              <div class="status-item"><span class="status-label">Nearest Starbase</span><span class="status-value" style="font-size:18px;">67,421 Light Years</span></div>
+              <div class="status-item"><span class="status-label">Subspace Anomalies</span><span class="status-value" style="font-size:18px;color:var(--lcars-gold);">3 Detected</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="panel purple">
+          <div class="panel-header">Environmental</div>
+          <div class="panel-body">
+            <div class="status-grid" style="grid-template-columns:1fr;">
+              <div class="status-item"><span class="status-label">Atmosphere</span><span class="status-value" style="font-size:18px;color:var(--lcars-teal);">NOMINAL</span></div>
+              <div class="status-item"><span class="status-label">Gravity</span><span class="status-value" style="font-size:18px;">1.0 G</span></div>
+              <div class="status-item"><span class="status-label">Radiation</span><span class="status-value" style="font-size:18px;color:var(--lcars-teal);">0.02 mSv</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMMS -->
+    <div class="panel-container" id="panel-comms">
+      <div class="panel-grid" style="grid-template-columns:1fr 1fr;">
+        <div class="panel gold" style="grid-column:1/-1;">
+          <div class="panel-header">Weather Station — <span id="weatherCityLabel">Earth</span></div>
+          <div class="panel-body">
+            <div class="weather-main"><div style="font-size:48px;" id="weatherIcon">🌤</div><div><div class="weather-temp" id="weatherTemp">—</div><div class="weather-desc" id="weatherDesc">LOADING...</div></div></div>
+            <div class="weather-details">
+              <div class="weather-detail-item"><div class="weather-detail-label">Humidity</div><div class="weather-detail-value" id="weatherHumidity">—</div></div>
+              <div class="weather-detail-item"><div class="weather-detail-label">Wind</div><div class="weather-detail-value" id="weatherWind">—</div></div>
+              <div class="weather-detail-item"><div class="weather-detail-label">Pressure</div><div class="weather-detail-value" id="weatherPressure">—</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="panel blue">
+          <div class="panel-header">System Comms</div>
+          <div class="panel-body">
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div class="comms-grid-item"><span class="comms-icon">📶</span><div><div class="comms-label">Wi-Fi Network</div><div class="comms-value" id="commsWifi">Scanning...</div></div></div>
+              <div class="comms-grid-item"><span class="comms-icon">🔵</span><div><div class="comms-label">Bluetooth</div><div class="comms-value" id="commsBluetooth">Scanning...</div></div></div>
+              <div class="comms-grid-item"><span class="comms-icon">🔊</span><div><div class="comms-label">Volume</div><div class="comms-value" id="commsVolume">—</div></div></div>
+              <div class="comms-grid-item"><span class="comms-icon">🔆</span><div><div class="comms-label">Brightness</div><div class="comms-value" id="commsBrightness">—</div></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="panel teal">
+          <div class="panel-header">Quick Launch</div>
+          <div class="panel-body">
+            <div style="display:flex;flex-wrap:wrap;gap:4px;">
+              <div class="app-launcher" onclick="launchApp('Safari')"><span class="app-launcher-icon">🧭</span><span class="app-launcher-name">Safari</span></div>
+              <div class="app-launcher" onclick="launchApp('Mail')"><span class="app-launcher-icon">📧</span><span class="app-launcher-name">Mail</span></div>
+              <div class="app-launcher" onclick="launchApp('Messages')"><span class="app-launcher-icon">💬</span><span class="app-launcher-name">Messages</span></div>
+              <div class="app-launcher" onclick="launchApp('Music')"><span class="app-launcher-icon">🎵</span><span class="app-launcher-name">Music</span></div>
+              <div class="app-launcher" onclick="launchApp('Terminal')"><span class="app-launcher-icon">🖥️</span><span class="app-launcher-name">Terminal</span></div>
+              <div class="app-launcher" onclick="launchApp('Finder')"><span class="app-launcher-icon">📁</span><span class="app-launcher-name">Finder</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="panel orange" style="grid-column:1/-1;">
+          <div class="panel-header">Chronometer</div>
+          <div class="panel-body">
+            <div class="clock-main">
+              <div class="clock-time" id="clockTime">00:00:00</div>
+              <div class="clock-date" id="clockDate">STARDATE 79145.7</div>
+              <div class="clock-stardate" id="clockStardate"></div>
+              <canvas class="clock-analog" id="clockCanvas" width="200" height="200"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMPUTER -->
+    <div class="panel-container" id="panel-computer">
+      <div class="panel-grid" style="grid-template-columns:1fr 1fr;">
+        <div class="panel blue">
+          <div class="panel-header">Computational Interface</div>
+          <div class="panel-body">
+            <div class="calc-display" id="calcDisplay">0</div>
+            <div class="calc-grid">
+              <button class="calc-btn clear" onclick="calcClear()">C</button>
+              <button class="calc-btn fn" onclick="calcInput('(')">(</button>
+              <button class="calc-btn fn" onclick="calcInput(')')">)</button>
+              <button class="calc-btn op" onclick="calcInput('/')">÷</button>
+              <button class="calc-btn num" onclick="calcInput('7')">7</button>
+              <button class="calc-btn num" onclick="calcInput('8')">8</button>
+              <button class="calc-btn num" onclick="calcInput('9')">9</button>
+              <button class="calc-btn op" onclick="calcInput('*')">×</button>
+              <button class="calc-btn num" onclick="calcInput('4')">4</button>
+              <button class="calc-btn num" onclick="calcInput('5')">5</button>
+              <button class="calc-btn num" onclick="calcInput('6')">6</button>
+              <button class="calc-btn op" onclick="calcInput('-')">−</button>
+              <button class="calc-btn num" onclick="calcInput('1')">1</button>
+              <button class="calc-btn num" onclick="calcInput('2')">2</button>
+              <button class="calc-btn num" onclick="calcInput('3')">3</button>
+              <button class="calc-btn op" onclick="calcInput('+')">+</button>
+              <button class="calc-btn num" onclick="calcInput('0')" style="grid-column:span 2;">0</button>
+              <button class="calc-btn num" onclick="calcInput('.')">.</button>
+              <button class="calc-btn eq" onclick="calcEquals()">=</button>
+            </div>
+          </div>
+        </div>
+        <div class="panel teal">
+          <div class="panel-header">System Directory</div>
+          <div class="panel-body">
+            <div class="status-grid" style="grid-template-columns:1fr;">
+              <div class="status-item"><span class="status-label">OS Version</span><span class="status-value" style="font-size:16px;">LCARS 4.7.2 Voyager</span></div>
+              <div class="status-item"><span class="status-label">Architecture</span><span class="status-value" style="font-size:16px;">Apple Silicon (ARM64)</span></div>
+              <div class="status-item"><span class="status-label">Bio-Neural Gel Packs</span><span class="status-value" style="font-size:16px;color:var(--lcars-teal);">47 / 47 ONLINE</span></div>
+              <div class="status-item"><span class="status-label">Uptime</span><span class="status-value" style="font-size:16px;" id="uptimeValue">0d 0h 0m</span></div>
+              <div class="status-item"><span class="status-label">Holographic Subroutines</span><span class="status-value" style="font-size:16px;color:var(--lcars-gold);">EMH Mark I Active</span></div>
+              <div class="status-item"><span class="status-label">Delta Quadrant ETA</span><span class="status-value" style="font-size:16px;">~70 Years</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FILES / DATABASE -->
+    <div class="panel-container" id="panel-files">
+      <div class="panel-grid" style="grid-template-columns:1fr;">
+        <div class="panel blue">
+          <div class="panel-header">Ship's Database</div>
+          <div class="panel-body">
+            <div class="file-path-bar"><span style="color:var(--lcars-gold);cursor:pointer;" onclick="navigateUp()">◆</span><span id="filePath">~/</span></div>
+            <div class="file-list" id="fileList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOG ENTRY / TASK LIST -->
+    <div class="panel-container" id="panel-notepad">
+      <div class="panel-grid" style="grid-template-columns:1fr;">
+        <div class="panel pink">
+          <div class="panel-header">Mission Tasks</div>
+          <div class="panel-body">
+            <div class="task-input-row">
+              <input type="text" class="task-input" id="taskInput" placeholder="Enter new task..." onkeydown="if(event.key==='Enter')addTask()">
+              <select class="task-select" id="taskPriority">
+                <option value="medium">MEDIUM</option>
+                <option value="high">HIGH</option>
+                <option value="low">LOW</option>
+              </select>
+              <input type="date" class="task-date-input" id="taskDueDate" title="Due date (optional)">
+              <button class="task-add-btn" onclick="addTask()">ADD</button>
+            </div>
+            <div class="task-filters">
+              <button class="task-filter-btn active" onclick="setTaskFilter('all')" id="filterAll">ALL</button>
+              <button class="task-filter-btn" onclick="setTaskFilter('active')" id="filterActive">ACTIVE</button>
+              <button class="task-filter-btn" onclick="setTaskFilter('completed')" id="filterCompleted">DONE</button>
+              <button class="task-filter-btn" onclick="setTaskFilter('overdue')" id="filterOverdue" style="background:var(--lcars-red);color:#fff;">OVERDUE</button>
+              <button class="task-filter-btn" onclick="purgeCompleted()" style="background:var(--lcars-red);color:#fff;">PURGE</button>
+            </div>
+            <div id="taskList"></div>
+            <div class="task-stats" id="taskStats"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS / CONFIG -->
+    <div class="panel-container" id="panel-settings">
+      <div class="panel-grid" style="grid-template-columns:1fr 1fr;">
+        <div class="panel gold">
+          <div class="panel-header">Alert Controls</div>
+          <div class="panel-body">
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <button class="sidebar-btn" style="background:var(--lcars-red);border-radius:6px;justify-content:center;color:#fff;" onclick="triggerAlert('red')">RED ALERT</button>
+              <button class="sidebar-btn" style="background:var(--lcars-orange);border-radius:6px;justify-content:center;" onclick="triggerAlert('yellow')">YELLOW ALERT</button>
+              <button class="sidebar-btn" style="background:var(--lcars-blue);border-radius:6px;justify-content:center;" onclick="triggerAlert('blue')">BLUE ALERT</button>
+              <button class="sidebar-btn" style="background:var(--lcars-teal);border-radius:6px;justify-content:center;" onclick="triggerAlert('clear')">CLEAR ALERT</button>
+            </div>
+          </div>
+        </div>
+        <div class="panel teal">
+          <div class="panel-header">Audio Controls</div>
+          <div class="panel-body">
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <button class="sidebar-btn" style="background:var(--lcars-teal);border-radius:6px;justify-content:center;" onclick="toggleSound()"><span id="soundToggle">ENABLE AUDIO</span></button>
+              <button class="sidebar-btn" style="background:var(--lcars-lavender);border-radius:6px;justify-content:center;" onclick="playTestTone()">TEST COMM SIGNAL</button>
+              <button class="sidebar-btn" style="background:var(--lcars-peach);border-radius:6px;justify-content:center;" onclick="playBoatswain()">BOATSWAIN WHISTLE</button>
+            </div>
+          </div>
+        </div>
+        <div class="panel purple" style="grid-column:1/-1;">
+          <div class="panel-header">Display Configuration</div>
+          <div class="panel-body">
+            <div style="display:flex;gap:12px;flex-wrap:wrap;">
+              <button class="sidebar-btn" style="background:var(--lcars-blue);border-radius:6px;padding:12px 24px;" onclick="setTheme('voyager')">VOYAGER</button>
+              <button class="sidebar-btn" style="background:var(--lcars-orange);border-radius:6px;padding:12px 24px;" onclick="setTheme('tng')">TNG CLASSIC</button>
+              <button class="sidebar-btn" style="background:var(--lcars-teal);border-radius:6px;padding:12px 24px;" onclick="setTheme('dark')">DARK MODE</button>
+              <button class="sidebar-btn" style="background:var(--lcars-lightblue);border-radius:6px;padding:12px 24px;" onclick="setTheme('snw')">STRANGE NEW WORLDS</button>
+            </div>
+          </div>
+        </div>
+        <div class="panel blue" style="grid-column:1/-1;">
+          <div class="panel-header">Weather Location</div>
+          <div class="panel-body">
+            <div style="margin-bottom:8px;font-size:12px;color:var(--lcars-gold);letter-spacing:1px;" id="currentLocationInfo">Current: Default (auto-detect)</div>
+            <div style="display:flex;gap:6px;margin-bottom:12px;">
+              <input type="text" class="city-search-input" id="citySearchInput" placeholder="Search city name..." onkeydown="if(event.key==='Enter')searchCity()">
+              <button class="task-add-btn" onclick="searchCity()">SEARCH</button>
+            </div>
+            <div id="cityResults"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lcars-footer">
+    <div class="footer-elbow"></div>
+    <div class="footer-bar">
+      <div class="footer-segment" style="background:var(--lcars-teal);">47-ALPHA</div>
+      <div class="footer-segment" style="background:var(--lcars-gold);">SEC LVL 4</div>
+      <div class="footer-segment" style="background:var(--lcars-blue);" id="footerAlert">ALL CLEAR</div>
+      <div class="footer-status" id="footerStatus">LCARS INTERFACE ACTIVE — ALL SYSTEMS NOMINAL</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================
+// LCARS OS — Voyager Edition (Full Build)
+// ============================================
+
+var isTauri = (typeof window.__TAURI_INTERNALS__ !== 'undefined' && typeof window.__TAURI_INTERNALS__.invoke === 'function');
+var lastRxBytes = 0, lastTxBytes = 0;
+var audioEnabled = false, audioCtx = null;
+var bootStartTime = Date.now();
+var currentPanel = 'ops';
+var calcExpression = '';
+var sensorAngle = 0, blips = [];
+var stars = [], bgStars = [];
+var currentPath = '';
+var alertTimeout = null;
+var cpuHistory = new Array(60).fill(0);
+var memHistory = new Array(60).fill(0);
+var netHistory = new Array(60).fill(0);
+var taskFilter = 'all';
+var tasks = [];
+var weatherLat = null;
+var weatherLon = null;
+var weatherCityName = '';
+
+var panelTitles = { ops:'OPERATIONS', tactical:'TACTICAL', science:'SCIENCE', comms:'COMMUNICATIONS', computer:'COMPUTER CORE', files:'DATABASE ACCESS', notepad:'MISSION TASKS', settings:'CONFIGURATION' };
+
+// === TAURI INVOKE HELPER ===
+function tauriInvoke(cmd, args) {
+  if (!isTauri) return Promise.reject('Not Tauri');
+  return window.__TAURI_INTERNALS__.invoke(cmd, args || {});
+}
+
+// === AUDIO ===
+function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+function playTone(freq, dur, type, vol) {
+  if (!audioEnabled || !audioCtx) return;
+  type = type || 'sine'; vol = vol || 0.15;
+  var osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+  osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+  gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+  osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + dur);
+}
+function playBeep() { playTone(1200, 0.08, 'sine', 0.1); }
+function playClick() { playTone(800, 0.04, 'square', 0.05); }
+function playAlert(type) {
+  if (type === 'red') { playTone(440,0.3,'sawtooth',0.2); setTimeout(function(){playTone(330,0.3,'sawtooth',0.2);},350); }
+  else if (type === 'yellow') { playTone(660,0.2,'sine',0.15); setTimeout(function(){playTone(550,0.2,'sine',0.15);},250); }
+}
+function playTestTone() { initAudio(); audioEnabled=true; playTone(852,0.15,'sine',0.2); setTimeout(function(){playTone(1200,0.15,'sine',0.2);},180); setTimeout(function(){playTone(1600,0.3,'sine',0.15);},360); }
+function playBoatswain() { initAudio(); audioEnabled=true; playTone(1047,0.15,'sine',0.2); setTimeout(function(){playTone(1319,0.12,'sine',0.2);},160); setTimeout(function(){playTone(1568,0.3,'sine',0.18);},300); setTimeout(function(){playTone(2093,0.5,'sine',0.12);},620); }
+function toggleSound() { initAudio(); audioEnabled=!audioEnabled; document.getElementById('soundToggle').textContent=audioEnabled?'DISABLE AUDIO':'ENABLE AUDIO'; if(audioEnabled) playBeep(); }
+
+// === BOOT ===
+function runBoot() {
+  var steps=['bootTitle','boot1','boot2','boot3','boot4','boot5','boot6'];
+  var progress=document.getElementById('bootProgress');
+  var i=0;
+  function showNext() {
+    if (i<steps.length) { document.getElementById(steps[i]).classList.add('visible'); progress.style.width=((i+1)/steps.length*100)+'%'; i++; setTimeout(showNext, i===1?400:500); }
+    else { setTimeout(function(){ document.getElementById('bootScreen').classList.add('hidden'); document.getElementById('mainFrame').style.opacity='1'; document.getElementById('mainFrame').style.transition='opacity 0.8s ease'; startSystems(); }, 800); }
+  }
+  showNext();
+}
+
+// === PANELS ===
+function switchPanel(name) {
+  playClick();
+  document.querySelectorAll('.panel-container').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.sidebar-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('panel-'+name).classList.add('active');
+  document.getElementById('btn-'+name).classList.add('active');
+  document.getElementById('panelTitle').textContent=panelTitles[name]||name.toUpperCase();
+  currentPanel=name;
+}
+
+// === SYSTEM MONITORING ===
+function updateSystems() {
+  if (isTauri) {
+    tauriInvoke('get_system_metrics').then(function(m) {
+      var cpu=m.cpu_usage, mem=m.memory_usage_percent;
+      var rxD=m.network_rx_bytes-lastRxBytes, txD=m.network_tx_bytes-lastTxBytes;
+      lastRxBytes=m.network_rx_bytes; lastTxBytes=m.network_tx_bytes;
+      var netMbps=((rxD+txD)*8)/1000000; var net=Math.min(100,netMbps);
+      document.getElementById('cpuValue').textContent=cpu.toFixed(1)+'%';
+      document.getElementById('cpuBar').style.width=cpu+'%';
+      document.getElementById('memValue').textContent=m.memory_used.toFixed(1)+' / '+m.memory_total.toFixed(0)+' GB';
+      document.getElementById('memBar').style.width=mem+'%';
+      document.getElementById('netValue').textContent=netMbps.toFixed(1)+' Mb/s';
+      document.getElementById('netBar').style.width=net+'%';
+      var diskFree=100-m.disk_usage_percent;
+      document.getElementById('warpPower').textContent=diskFree.toFixed(1)+'%';
+      var wb=document.getElementById('warpBar'); if(wb) wb.style.width=diskFree+'%';
+      if (m.battery_percent !== undefined && m.battery_percent >= 0) {
+        document.getElementById('impulsePower').textContent=m.battery_percent.toFixed(0)+'%'+(m.battery_charging?' ⚡':'');
+        var ib=document.getElementById('impulseBar'); if(ib) ib.style.width=m.battery_percent+'%';
+      } else {
+        document.getElementById('impulsePower').textContent='AC POWER';
+        var ib=document.getElementById('impulseBar'); if(ib) ib.style.width='100%';
+      }
+      document.getElementById('auxPower').textContent=(m.thermal_pressure||'NOMINAL');
+      var u=m.uptime_seconds, d=Math.floor(u/86400), h=Math.floor((u%86400)/3600), mn=Math.floor((u%3600)/60);
+      document.getElementById('uptimeValue').textContent=d+'d '+h+'h '+mn+'m';
+      if(m.cpu_brand&&m.cpu_brand!=='Unknown'){var hdr=document.querySelector('#panel-ops .panel.blue .panel-header');if(hdr)hdr.textContent=m.cpu_brand;}
+      cpuHistory.push(Math.max(0,Math.min(100,cpu))); cpuHistory.shift();
+      memHistory.push(Math.max(0,Math.min(100,mem))); memHistory.shift();
+      netHistory.push(Math.max(0,Math.min(100,net))); netHistory.shift();
+      drawGraph('cpuGraph',cpuHistory,'rgba(102,136,204,0.8)','rgba(102,136,204,0.1)');
+      drawGraph('memGraph',memHistory,'rgba(102,204,204,0.8)','rgba(102,204,204,0.1)');
+      drawGraph('netGraph',netHistory,'rgba(204,119,255,0.8)','rgba(204,119,255,0.1)');
+    }).catch(function(e){ console.warn('Tauri metrics error:',e); updateSystemsSimulated(); });
+  } else {
+    updateSystemsSimulated();
+  }
+}
+
+function updateSystemsSimulated() {
+  var cpu=15+Math.random()*40+Math.sin(Date.now()/3000)*10;
+  var mem=45+Math.random()*10+Math.sin(Date.now()/8000)*8;
+  var net=20+Math.random()*60;
+  cpuHistory.push(Math.max(0,Math.min(100,cpu))); cpuHistory.shift();
+  memHistory.push(Math.max(0,Math.min(100,mem))); memHistory.shift();
+  netHistory.push(Math.max(0,Math.min(100,net))); netHistory.shift();
+  document.getElementById('cpuValue').textContent=cpu.toFixed(1)+'%';
+  document.getElementById('cpuBar').style.width=cpu+'%';
+  document.getElementById('memValue').textContent=mem.toFixed(1)+'%';
+  document.getElementById('memBar').style.width=mem+'%';
+  document.getElementById('netValue').textContent=(net*1.2).toFixed(0)+' Mb/s';
+  document.getElementById('netBar').style.width=net+'%';
+  document.getElementById('warpPower').textContent=(95+Math.random()*5).toFixed(1)+'%';
+  document.getElementById('impulsePower').textContent='100%';
+  document.getElementById('auxPower').textContent='NOMINAL';
+  var up=Date.now()-bootStartTime, h=Math.floor(up/3600000), m2=Math.floor((up%3600000)/60000), s=Math.floor((up%60000)/1000);
+  document.getElementById('uptimeValue').textContent='0d '+h+'h '+m2+'m';
+  drawGraph('cpuGraph',cpuHistory,'rgba(102,136,204,0.8)','rgba(102,136,204,0.1)');
+  drawGraph('memGraph',memHistory,'rgba(102,204,204,0.8)','rgba(102,204,204,0.1)');
+  drawGraph('netGraph',netHistory,'rgba(204,119,255,0.8)','rgba(204,119,255,0.1)');
+}
+
+function drawGraph(canvasId, data, lineColor, fillColor) {
+  var canvas=document.getElementById(canvasId); if(!canvas)return;
+  var ctx=canvas.getContext('2d'), w=canvas.width=canvas.offsetWidth*2, h=canvas.height=canvas.offsetHeight*2;
+  ctx.clearRect(0,0,w,h);
+  ctx.strokeStyle='rgba(102,136,204,0.08)'; ctx.lineWidth=1;
+  for(var i=0;i<5;i++){var y=(h/5)*i;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+  ctx.strokeStyle=lineColor; ctx.lineWidth=3; ctx.lineJoin='round'; ctx.beginPath();
+  for(var i=0;i<data.length;i++){var x=(w/(data.length-1))*i,y2=h-(data[i]/100)*h;if(i===0)ctx.moveTo(x,y2);else ctx.lineTo(x,y2);}
+  ctx.stroke(); ctx.lineTo(w,h); ctx.lineTo(0,h); ctx.closePath(); ctx.fillStyle=fillColor; ctx.fill();
+}
+
+// === SENSOR ===
+function drawSensor() {
+  var canvas=document.getElementById('sensorCanvas'); if(!canvas)return;
+  var ctx=canvas.getContext('2d'), cx=120,cy=120,r=110;
+  ctx.clearRect(0,0,240,240);
+  ctx.strokeStyle='rgba(102,136,204,0.15)'; ctx.lineWidth=1;
+  for(var i=1;i<=4;i++){ctx.beginPath();ctx.arc(cx,cy,(r/4)*i,0,Math.PI*2);ctx.stroke();}
+  ctx.beginPath();ctx.moveTo(cx-r,cy);ctx.lineTo(cx+r,cy);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(cx,cy-r);ctx.lineTo(cx,cy+r);ctx.stroke();
+  ctx.fillStyle='rgba(0,204,204,0.12)';ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,sensorAngle-0.5,sensorAngle,false);ctx.closePath();ctx.fill();
+  ctx.strokeStyle='rgba(0,204,204,0.8)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(sensorAngle)*r,cy+Math.sin(sensorAngle)*r);ctx.stroke();
+  ctx.fillStyle='#00cccc';ctx.beginPath();ctx.arc(cx,cy,4,0,Math.PI*2);ctx.fill();
+  if(Math.random()>0.95){var a=Math.random()*Math.PI*2,br=20+Math.random()*80;blips.push({x:cx+Math.cos(a)*br,y:cy+Math.sin(a)*br,life:60});}
+  blips=blips.filter(function(b){return b.life>0;});
+  blips.forEach(function(b){ctx.fillStyle='rgba(0,204,204,'+(b.life/60)+')';ctx.beginPath();ctx.arc(b.x,b.y,3,0,Math.PI*2);ctx.fill();b.life--;});
+  sensorAngle+=0.03;
+}
+
+// === ASTROMETRICS ===
+function initStarfield3D() { stars=[]; for(var i=0;i<300;i++) stars.push({x:Math.random()*2-1,y:Math.random()*2-1,z:Math.random(),size:0.5+Math.random()*1.5}); }
+function drawAstrometrics() {
+  var canvas=document.getElementById('astrometricsCanvas'); if(!canvas)return;
+  var ctx=canvas.getContext('2d'), w=canvas.width, h=canvas.height;
+  ctx.fillStyle='rgba(0,5,15,0.3)'; ctx.fillRect(0,0,w,h);
+  ctx.strokeStyle='rgba(102,136,204,0.06)'; ctx.lineWidth=1;
+  for(var x=0;x<w;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}
+  for(var y=0;y<h;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+  stars.forEach(function(s){
+    s.z-=0.002; if(s.z<=0){s.z=1;s.x=Math.random()*2-1;s.y=Math.random()*2-1;}
+    var sx=(s.x/s.z)*300+w/2, sy=(s.y/s.z)*150+h/2, sz=(1-s.z)*s.size*2, br=1-s.z;
+    if(sx>0&&sx<w&&sy>0&&sy<h){ctx.fillStyle='rgba(153,204,255,'+br+')';ctx.beginPath();ctx.arc(sx,sy,sz,0,Math.PI*2);ctx.fill();}
+  });
+}
+
+// === BACKGROUND STARFIELD ===
+function initBgStarfield() {
+  var canvas=document.getElementById('starfield'); canvas.width=window.innerWidth; canvas.height=window.innerHeight;
+  bgStars=[]; for(var i=0;i<200;i++) bgStars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:0.3+Math.random()*1.2,a:0.2+Math.random()*0.6,twinkle:Math.random()*Math.PI*2});
+}
+function drawBgStarfield() {
+  var canvas=document.getElementById('starfield'), ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  bgStars.forEach(function(s){s.twinkle+=0.02+Math.random()*0.01;var alpha=s.a*(0.5+0.5*Math.sin(s.twinkle));ctx.fillStyle='rgba(180,210,255,'+alpha+')';ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();});
+}
+
+// === CLOCK ===
+function updateClock() {
+  var now=new Date(), h=String(now.getHours()).padStart(2,'0'), m=String(now.getMinutes()).padStart(2,'0'), s=String(now.getSeconds()).padStart(2,'0');
+  var timeStr=h+':'+m+':'+s;
+  document.getElementById('headerTime').textContent=timeStr;
+  var ct=document.getElementById('clockTime'); if(ct)ct.textContent=timeStr;
+  var elapsed=(now-new Date('2000-01-01'))/(1000*60*60*24*365.25);
+  var stardate=(41000+elapsed*1000).toFixed(1);
+  document.getElementById('headerStardate').textContent='SD '+stardate;
+  var days=['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'];
+  var months=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  var dateStr=days[now.getDay()]+' '+now.getDate()+' '+months[now.getMonth()]+' '+now.getFullYear();
+  var cd=document.getElementById('clockDate'); if(cd)cd.textContent=dateStr;
+  var cs=document.getElementById('clockStardate'); if(cs)cs.textContent='STARDATE '+stardate;
+  drawAnalogClock(now);
+}
+function drawAnalogClock(now) {
+  var canvas=document.getElementById('clockCanvas'); if(!canvas)return;
+  var ctx=canvas.getContext('2d'), cx=100,cy=100,r=90;
+  ctx.clearRect(0,0,200,200);
+  ctx.strokeStyle='rgba(102,136,204,0.3)'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
+  for(var i=0;i<12;i++){var angle=(Math.PI*2/12)*i-Math.PI/2,inner=i%3===0?r-15:r-10;ctx.strokeStyle=i%3===0?'#99ccff':'rgba(102,136,204,0.4)';ctx.lineWidth=i%3===0?3:1;ctx.beginPath();ctx.moveTo(cx+Math.cos(angle)*inner,cy+Math.sin(angle)*inner);ctx.lineTo(cx+Math.cos(angle)*(r-2),cy+Math.sin(angle)*(r-2));ctx.stroke();}
+  var hr=(now.getHours()%12+now.getMinutes()/60)*(Math.PI*2/12)-Math.PI/2;
+  ctx.strokeStyle='#99ccff';ctx.lineWidth=4;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(hr)*50,cy+Math.sin(hr)*50);ctx.stroke();
+  var mn=(now.getMinutes()+now.getSeconds()/60)*(Math.PI*2/60)-Math.PI/2;
+  ctx.strokeStyle='#66cccc';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(mn)*70,cy+Math.sin(mn)*70);ctx.stroke();
+  var sc=now.getSeconds()*(Math.PI*2/60)-Math.PI/2;
+  ctx.strokeStyle='#ff9900';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(sc)*80,cy+Math.sin(sc)*80);ctx.stroke();
+  ctx.fillStyle='#99ccff';ctx.beginPath();ctx.arc(cx,cy,4,0,Math.PI*2);ctx.fill();
+}
+
+// === CALCULATOR ===
+function calcInput(val){playClick();calcExpression+=val;document.getElementById('calcDisplay').textContent=calcExpression||'0';}
+function calcClear(){playClick();calcExpression='';document.getElementById('calcDisplay').textContent='0';}
+function calcEquals(){playBeep();try{var result=Function('"use strict";return ('+calcExpression+')')();document.getElementById('calcDisplay').textContent=result;calcExpression=String(result);}catch(e){document.getElementById('calcDisplay').textContent='ERROR';calcExpression='';}}
+
+// === FILE BROWSER (Real via Tauri) ===
+function navigateUp() {
+  if (!currentPath || currentPath === '/') return;
+  var parts = currentPath.replace(/\/$/,'').split('/');
+  parts.pop();
+  currentPath = parts.join('/') || '/';
+  if (currentPath.length > 1 && currentPath.charAt(currentPath.length-1) !== '/') currentPath += '/';
+  loadDirectory(currentPath);
+}
+
+function loadDirectory(path) {
+  if (isTauri) {
+    tauriInvoke('list_directory', { path: path }).then(function(entries) {
+      currentPath = path;
+      document.getElementById('filePath').textContent = currentPath;
+      var list = document.getElementById('fileList');
+      list.innerHTML = '';
+      if (currentPath !== '/' && currentPath.length > 1) {
+        var upDiv = document.createElement('div'); upDiv.className='file-item';
+        upDiv.onclick = function(){ playClick(); navigateUp(); };
+        upDiv.innerHTML='<span class="file-icon">⬆️</span><span class="file-name">..</span><span class="file-size">—</span><span class="file-date">—</span>';
+        list.appendChild(upDiv);
+      }
+      entries.sort(function(a,b){ if(a.is_dir && !b.is_dir) return -1; if(!a.is_dir && b.is_dir) return 1; return a.name.localeCompare(b.name); });
+      entries.forEach(function(entry) {
+        var div = document.createElement('div'); div.className='file-item';
+        if (entry.is_dir) {
+          div.onclick = function(){ playClick(); loadDirectory(entry.path); };
+        } else {
+          div.onclick = function(){ playClick(); tauriInvoke('open_file', { path: entry.path }).catch(function(e){ console.warn('open_file error:',e); }); };
+        }
+        var icon = entry.is_dir ? '📁' : (entry.name.match(/\.(jpg|jpeg|png|gif|svg)$/i) ? '🖼️' : entry.name.match(/\.(mp3|wav|aac|m4a)$/i) ? '🎵' : entry.name.match(/\.(mp4|mov|avi)$/i) ? '🎬' : entry.name.match(/\.(pdf)$/i) ? '📕' : entry.name.match(/\.(zip|tar|gz|dmg)$/i) ? '📦' : entry.name.match(/\.(js|ts|py|rs|swift|c|cpp|h|java|go|rb)$/i) ? '💻' : '📄');
+        var sizeStr = entry.is_dir ? '—' : formatFileSize(entry.size);
+        div.innerHTML='<span class="file-icon">'+icon+'</span><span class="file-name">'+entry.name+'</span><span class="file-size">'+sizeStr+'</span>';
+        list.appendChild(div);
+      });
+    }).catch(function(e){ console.warn('list_directory error:',e); });
+  }
+}
+
+function formatFileSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1048576) return (bytes/1024).toFixed(1) + ' KB';
+  if (bytes < 1073741824) return (bytes/1048576).toFixed(1) + ' MB';
+  return (bytes/1073741824).toFixed(1) + ' GB';
+}
+
+function initFilesBrowser() {
+  if (isTauri) {
+    tauriInvoke('get_home_dir').then(function(home) {
+      currentPath = home;
+      loadDirectory(currentPath);
+    }).catch(function(e){ console.warn('get_home_dir error:',e); });
+  }
+}
+
+// === TASK LIST (with due dates) ===
+function loadTasks() {
+  if (isTauri) {
+    tauriInvoke('load_tasks').then(function(data) {
+      try { tasks = JSON.parse(data); } catch(e) { tasks = []; }
+      renderTasks();
+    }).catch(function(e){ tasks=[]; renderTasks(); });
+  } else {
+    tasks = []; renderTasks();
+  }
+}
+
+function saveTasks() {
+  if (isTauri) {
+    tauriInvoke('save_tasks', { data: JSON.stringify(tasks) }).catch(function(e){ console.warn('save_tasks error:',e); });
+  }
+}
+
+function addTask() {
+  var input = document.getElementById('taskInput');
+  var text = input.value.trim();
+  if (!text) return;
+  playClick();
+  var priority = document.getElementById('taskPriority').value;
+  var dueDateInput = document.getElementById('taskDueDate');
+  var dueDate = dueDateInput.value || '';
+  tasks.push({ text: text, priority: priority, completed: false, created: Date.now(), dueDate: dueDate });
+  input.value = '';
+  dueDateInput.value = '';
+  saveTasks();
+  renderTasks();
+}
+
+function toggleTask(index) {
+  playClick();
+  tasks[index].completed = !tasks[index].completed;
+  saveTasks();
+  renderTasks();
+}
+
+function deleteTask(index) {
+  playClick();
+  tasks.splice(index, 1);
+  saveTasks();
+  renderTasks();
+}
+
+function setTaskFilter(f) {
+  taskFilter = f;
+  document.querySelectorAll('.task-filter-btn').forEach(function(b){ b.classList.remove('active'); });
+  var btn = document.getElementById('filter' + f.charAt(0).toUpperCase() + f.slice(1));
+  if (btn) btn.classList.add('active');
+  renderTasks();
+}
+
+function purgeCompleted() {
+  playBeep();
+  tasks = tasks.filter(function(t){ return !t.completed; });
+  saveTasks();
+  renderTasks();
+}
+
+function isOverdue(task) {
+  if (!task.dueDate || task.completed) return false;
+  var today = new Date();
+  today.setHours(0,0,0,0);
+  var due = new Date(task.dueDate + 'T00:00:00');
+  return due < today;
+}
+
+function isDueSoon(task) {
+  if (!task.dueDate || task.completed) return false;
+  var today = new Date();
+  today.setHours(0,0,0,0);
+  var due = new Date(task.dueDate + 'T00:00:00');
+  var diff = (due - today) / (1000*60*60*24);
+  return diff >= 0 && diff <= 2;
+}
+
+function formatDueDate(dateStr) {
+  if (!dateStr) return '';
+  var parts = dateStr.split('-');
+  var months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  var m = parseInt(parts[1], 10) - 1;
+  var d = parseInt(parts[2], 10);
+  return d + ' ' + months[m];
+}
+
+function renderTasks() {
+  var list = document.getElementById('taskList');
+  if (!list) return;
+  list.innerHTML = '';
+  var filtered = tasks.filter(function(t) {
+    if (taskFilter === 'active') return !t.completed;
+    if (taskFilter === 'completed') return t.completed;
+    if (taskFilter === 'overdue') return isOverdue(t);
+    return true;
+  });
+  filtered.forEach(function(t) {
+    var realIndex = tasks.indexOf(t);
+    var overdue = isOverdue(t);
+    var dueSoon = isDueSoon(t);
+    var div = document.createElement('div');
+    div.className = 'task-item' + (t.completed ? ' completed' : '') + (overdue ? ' overdue' : '');
+    var dueDateHtml = '';
+    if (t.dueDate) {
+      var dueClass = 'task-due';
+      var duePrefix = '';
+      if (overdue) { duePrefix = '⚠ '; }
+      else if (dueSoon) { duePrefix = '⏰ '; }
+      dueDateHtml = '<span class="' + dueClass + '">' + duePrefix + formatDueDate(t.dueDate) + '</span>';
+    }
+    div.innerHTML = '<div class="task-check' + (t.completed ? ' done' : '') + '" onclick="toggleTask(' + realIndex + ')">' + (t.completed ? '✓' : '') + '</div>' +
+      '<span class="task-text">' + t.text + '</span>' +
+      dueDateHtml +
+      '<span class="task-priority ' + t.priority + '">' + t.priority.toUpperCase() + '</span>' +
+      '<span class="task-delete" onclick="deleteTask(' + realIndex + ')">✕</span>';
+    list.appendChild(div);
+  });
+  var total = tasks.length, done = tasks.filter(function(t){return t.completed;}).length;
+  var overdueCount = tasks.filter(function(t){ return isOverdue(t); }).length;
+  var stats = document.getElementById('taskStats');
+  var statsText = done + ' of ' + total + ' tasks completed';
+  if (overdueCount > 0) statsText += ' — ' + overdueCount + ' overdue';
+  if (stats) stats.textContent = statsText;
+}
+
+// === ALERTS ===
+function triggerAlert(type) {
+  playAlert(type); var bar=document.getElementById('alertBar'), footer=document.getElementById('footerAlert');
+  if(type==='clear'){bar.classList.remove('show');footer.textContent='ALL CLEAR';footer.style.color='';document.getElementById('footerStatus').textContent='LCARS INTERFACE ACTIVE — ALL SYSTEMS NOMINAL';return;}
+  bar.className='alert-bar '+type+' show';
+  if(type==='red'){bar.textContent='RED ALERT — ALL HANDS TO BATTLE STATIONS';footer.textContent='RED ALERT';footer.style.color='#fff';}
+  else if(type==='yellow'){bar.textContent='YELLOW ALERT — INCREASED READINESS';footer.textContent='YELLOW ALERT';}
+  else if(type==='blue'){bar.textContent='BLUE ALERT — LANDING SEQUENCE INITIATED';footer.textContent='BLUE ALERT';}
+  document.getElementById('footerStatus').textContent=bar.textContent;
+  clearTimeout(alertTimeout); alertTimeout=setTimeout(function(){bar.classList.remove('show');},8000);
+}
+
+// === THEMES ===
+function setTheme(theme) {
+  playClick(); var r=document.documentElement;
+  if(theme==='tng'){r.style.setProperty('--lcars-blue','#cc99cc');r.style.setProperty('--lcars-lightblue','#ffcc99');r.style.setProperty('--lcars-teal','#cc6633');r.style.setProperty('--lcars-purple','#9999cc');}
+  else if(theme==='dark'){r.style.setProperty('--lcars-blue','#334466');r.style.setProperty('--lcars-lightblue','#6688aa');r.style.setProperty('--lcars-teal','#336666');r.style.setProperty('--lcars-purple','#664488');r.style.setProperty('--lcars-orange','#996633');}
+  else if(theme==='snw'){r.style.setProperty('--lcars-blue','#5577bb');r.style.setProperty('--lcars-lightblue','#88bbee');r.style.setProperty('--lcars-teal','#55aaaa');r.style.setProperty('--lcars-purple','#8866bb');r.style.setProperty('--lcars-orange','#dd8833');r.style.setProperty('--lcars-gold','#bbaa44');}
+  else{r.style.setProperty('--lcars-blue','#6688cc');r.style.setProperty('--lcars-lightblue','#99ccff');r.style.setProperty('--lcars-teal','#66cccc');r.style.setProperty('--lcars-purple','#cc77ff');r.style.setProperty('--lcars-orange','#ff9900');r.style.setProperty('--lcars-gold','#cc9933');}
+}
+
+// === SHIELDS ===
+function updateShields(){['Fwd','Aft','Port','Stbd'].forEach(function(s){var val=92+Math.random()*8;var el=document.getElementById('shield'+s);var bar=document.getElementById('shield'+s+'Bar');if(el)el.textContent=val.toFixed(0)+'%';if(bar)bar.style.width=val+'%';});}
+
+// === WEATHER (Real via Open-Meteo) ===
+function fetchWeather() {
+  if (weatherLat === null || weatherLon === null) {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(function(pos) {
+        weatherLat = pos.coords.latitude;
+        weatherLon = pos.coords.longitude;
+        doFetchWeather();
+      }, function() {
+        weatherLat = 37.7749; weatherLon = -122.4194; weatherCityName = 'San Francisco';
+        var info = document.getElementById('currentLocationInfo');
+        if (info) info.textContent = 'Current: San Francisco (default)';
+        var label = document.getElementById('weatherCityLabel');
+        if (label) label.textContent = 'San Francisco';
+        doFetchWeather();
+      });
+    } else {
+      weatherLat = 37.7749; weatherLon = -122.4194; weatherCityName = 'San Francisco';
+      doFetchWeather();
+    }
+    return;
+  }
+  doFetchWeather();
+}
+
+function doFetchWeather() {
+  var url = 'https://api.open-meteo.com/v1/forecast?latitude='+weatherLat+'&longitude='+weatherLon+'&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,surface_pressure&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto';
+  fetch(url).then(function(r){return r.json();}).then(function(data) {
+    if (data && data.current) {
+      var c = data.current;
+      document.getElementById('weatherTemp').textContent = Math.round(c.temperature_2m) + '°F';
+      document.getElementById('weatherHumidity').textContent = c.relative_humidity_2m + '%';
+      document.getElementById('weatherWind').textContent = Math.round(c.wind_speed_10m) + ' MPH';
+      document.getElementById('weatherPressure').textContent = (c.surface_pressure * 0.02953).toFixed(2) + ' inHg';
+      var wc = c.weather_code;
+      var desc = 'CLEAR', icon = '☀️';
+      if (wc >= 1 && wc <= 3) { desc = 'PARTLY CLOUDY'; icon = '⛅'; }
+      else if (wc >= 45 && wc <= 48) { desc = 'FOGGY'; icon = '🌫️'; }
+      else if (wc >= 51 && wc <= 57) { desc = 'DRIZZLE'; icon = '🌦️'; }
+      else if (wc >= 61 && wc <= 67) { desc = 'RAIN'; icon = '🌧️'; }
+      else if (wc >= 71 && wc <= 77) { desc = 'SNOW'; icon = '🌨️'; }
+      else if (wc >= 80 && wc <= 82) { desc = 'SHOWERS'; icon = '🌧️'; }
+      else if (wc >= 95) { desc = 'THUNDERSTORM'; icon = '⛈️'; }
+      document.getElementById('weatherDesc').textContent = desc;
+      document.getElementById('weatherIcon').textContent = icon;
+    }
+  }).catch(function(e){ console.warn('Weather error:',e); });
+}
+
+// === CITY SEARCH (Open-Meteo Geocoding) ===
+function searchCity() {
+  var input = document.getElementById('citySearchInput');
+  var query = input.value.trim();
+  if (!query) return;
+  playClick();
+  var resultsDiv = document.getElementById('cityResults');
+  resultsDiv.innerHTML = '<div style="color:var(--lcars-teal);font-size:13px;padding:8px;">Searching...</div>';
+  fetch('https://geocoding-api.open-meteo.com/v1/search?name=' + encodeURIComponent(query) + '&count=5&language=en&format=json')
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      resultsDiv.innerHTML = '';
+      if (!data.results || data.results.length === 0) {
+        resultsDiv.innerHTML = '<div style="color:var(--lcars-red);font-size:13px;padding:8px;">No cities found. Try a different name.</div>';
+        return;
+      }
+      data.results.forEach(function(city) {
+        var div = document.createElement('div');
+        div.className = 'city-result';
+        var region = city.admin1 ? ', ' + city.admin1 : '';
+        var country = city.country ? ', ' + city.country : '';
+        div.textContent = city.name + region + country;
+        div.onclick = function() {
+          playBeep();
+          weatherLat = city.latitude;
+          weatherLon = city.longitude;
+          weatherCityName = city.name;
+          var label = document.getElementById('weatherCityLabel');
+          if (label) label.textContent = city.name;
+          var info = document.getElementById('currentLocationInfo');
+          if (info) info.textContent = 'Current: ' + city.name + region + country;
+          resultsDiv.innerHTML = '<div style="color:var(--lcars-teal);font-size:13px;padding:8px;">Location set to ' + city.name + '. Fetching weather...</div>';
+          fetchWeather();
+        };
+        resultsDiv.appendChild(div);
+      });
+    })
+    .catch(function(e){
+      resultsDiv.innerHTML = '<div style="color:var(--lcars-red);font-size:13px;padding:8px;">Search failed. Check connection.</div>';
+    });
+}
+
+// === COMMS STATUS (Real via Tauri) ===
+function updateComms() {
+  if (isTauri) {
+    tauriInvoke('get_comms_status').then(function(c) {
+      document.getElementById('commsWifi').textContent = c.wifi || 'Not Connected';
+      if (c.bluetooth_enabled) {
+        var btText = c.bluetooth_devices && c.bluetooth_devices.length > 0 ? c.bluetooth_devices.join(', ') : 'On (no devices)';
+        document.getElementById('commsBluetooth').textContent = btText;
+      } else {
+        document.getElementById('commsBluetooth').textContent = 'Disabled';
+      }
+      document.getElementById('commsVolume').textContent = (c.volume_percent >= 0 ? c.volume_percent + '%' : '—');
+      document.getElementById('commsBrightness').textContent = (c.brightness_percent >= 0 ? c.brightness_percent + '%' : '—');
+    }).catch(function(e){ console.warn('Comms error:',e); });
+  }
+}
+
+// === APP LAUNCHER ===
+function launchApp(name) {
+  playBeep();
+  if (isTauri) {
+    tauriInvoke('launch_app', { name: name }).catch(function(e){ console.warn('launch error:',e); });
+  }
+}
+
+// === MAIN LOOP ===
+function startSystems() {
+  initBgStarfield(); initStarfield3D(); initFilesBrowser(); loadTasks();
+  setInterval(updateSystems, 2000);
+  setInterval(updateClock, 1000);
+  setInterval(updateShields, 3000);
+  setTimeout(function() { updateComms(); setInterval(updateComms, 30000); }, 10000);
+  fetchWeather();
+  setInterval(fetchWeather, 300000);
+  updateSystems(); updateClock(); updateShields();
+  function animate(){drawBgStarfield();drawSensor();drawAstrometrics();requestAnimationFrame(animate);}
+  animate();
+}
+
+// === KEYBOARD ===
+document.addEventListener('keydown',function(e){
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+  if(e.key==='1')switchPanel('ops');else if(e.key==='2')switchPanel('tactical');else if(e.key==='3')switchPanel('science');else if(e.key==='4')switchPanel('comms');else if(e.key==='5')switchPanel('computer');else if(e.key==='6')switchPanel('files');else if(e.key==='7')switchPanel('notepad');else if(e.key==='8')switchPanel('settings');
+});
+window.addEventListener('resize',function(){var c=document.getElementById('starfield');c.width=window.innerWidth;c.height=window.innerHeight;initBgStarfield();});
+
+// === START ===
+try { runBoot(); } catch(e) { console.error('Boot error:',e); document.getElementById('bootScreen').style.display='none'; document.getElementById('mainFrame').style.opacity='1'; startSystems(); }
+</script>
+</body>
+</html>

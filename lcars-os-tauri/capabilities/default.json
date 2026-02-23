@@ -1,0 +1,9 @@
+{
+  "identifier": "default",
+  "description": "LCARS OS default capabilities",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "shell:allow-open"
+  ]
+}

@@ -1,0 +1,1830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LCARS OS — Voyager Edition</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Antonio:wght@400;700&display=swap');
+
+  :root {
+    --lcars-orange: #ff9900;
+    --lcars-peach: #ff9966;
+    --lcars-gold: #cc9933;
+    --lcars-blue: #6688cc;
+    --lcars-lightblue: #99ccff;
+    --lcars-teal: #66cccc;
+    --lcars-cyan: #00cccc;
+    --lcars-purple: #cc77ff;
+    --lcars-lavender: #9999ff;
+    --lcars-pink: #cc6699;
+    --lcars-red: #cc4444;
+    --lcars-magenta: #cc66cc;
+    --lcars-bg: #000000;
+    --lcars-text: #ff9900;
+    --lcars-sidebar-w: 180px;
+    --lcars-header-h: 90px;
+    --lcars-footer-h: 50px;
+    --lcars-radius: 40px;
+    --lcars-font: 'Antonio', 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--lcars-bg);
+    color: var(--lcars-text);
+    font-family: var(--lcars-font);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    cursor: default;
+    user-select: none;
+  }
+
+  /* === MAIN LAYOUT === */
+  .lcars-frame {
+    display: grid;
+    grid-template-columns: var(--lcars-sidebar-w) 1fr;
+    grid-template-rows: var(--lcars-header-h) 1fr var(--lcars-footer-h);
+    height: 100vh;
+    width: 100vw;
+    gap: 3px;
+  }
+
+  /* === SIDEBAR === */
+  .lcars-sidebar {
+    grid-row: 1 / 4;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .sidebar-top {
+    background: var(--lcars-blue);
+    height: 120px;
+    border-radius: 0 0 var(--lcars-radius) 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    padding: 8px 12px;
+    font-size: 14px;
+    color: #000;
+    font-weight: 700;
+    letter-spacing: 2px;
+  }
+
+  .sidebar-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+    padding: 0;
+  }
+
+  .sidebar-btn {
+    padding: 8px 12px;
+    font-family: var(--lcars-font);
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-align: right;
+    border: none;
+    cursor: pointer;
+    color: #000;
+    transition: filter 0.15s, transform 0.1s;
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .sidebar-btn:hover { filter: brightness(1.3); transform: scale(1.02); }
+  .sidebar-btn:active { filter: brightness(0.8); }
+  .sidebar-btn.active { filter: brightness(1.4); box-shadow: inset -4px 0 0 #fff; }
+
+  .sidebar-bottom {
+    background: var(--lcars-purple);
+    height: 80px;
+    border-radius: 0 var(--lcars-radius) 0 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 8px 12px;
+    font-size: 11px;
+    color: #000;
+    font-weight: 700;
+    letter-spacing: 2px;
+  }
+
+  /* === HEADER === */
+  .lcars-header {
+    display: flex;
+    align-items: stretch;
+    gap: 3px;
+  }
+
+  .header-elbow {
+    background: var(--lcars-blue);
+    width: 160px;
+    border-radius: 0 0 0 var(--lcars-radius);
+    position: relative;
+  }
+
+  .header-elbow::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: -30px;
+    width: 30px;
+    height: 100%;
+    background: var(--lcars-bg);
+    border-radius: 0 var(--lcars-radius) 0 0;
+  }
+
+  .header-bar {
+    flex: 1;
+    display: flex;
+    align-items: stretch;
+    gap: 3px;
+  }
+
+  .header-segment {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #000;
+    text-transform: uppercase;
+  }
+
+  .header-title {
+    flex: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 6px;
+    color: var(--lcars-lightblue);
+    text-transform: uppercase;
+    background: transparent;
+  }
+
+  /* === CONTENT AREA === */
+  .lcars-content {
+    background: rgba(10, 15, 30, 0.5);
+    border: 1px solid rgba(102, 136, 204, 0.15);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* === FOOTER === */
+  .lcars-footer {
+    display: flex;
+    align-items: stretch;
+    gap: 3px;
+  }
+
+  .footer-elbow {
+    background: var(--lcars-purple);
+    width: 160px;
+    border-radius: var(--lcars-radius) 0 0 0;
+  }
+
+  .footer-bar {
+    flex: 1;
+    display: flex;
+    align-items: stretch;
+    gap: 3px;
+  }
+
+  .footer-segment {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #000;
+  }
+
+  .footer-status {
+    flex: 4;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    font-size: 14px;
+    letter-spacing: 2px;
+    color: var(--lcars-teal);
+    background: transparent;
+  }
+
+  /* === PANELS === */
+  .panel-container {
+    width: 100%;
+    height: 100%;
+    display: none;
+    padding: 20px;
+    overflow-y: auto;
+  }
+  .panel-container.active { display: block; }
+
+  .panel-grid {
+    display: grid;
+    gap: 16px;
+  }
+
+  .panel {
+    background: rgba(10, 20, 40, 0.6);
+    border: 1px solid rgba(102, 136, 204, 0.25);
+    border-radius: 12px;
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 5px;
+    height: 100%;
+    border-radius: 12px 0 0 12px;
+  }
+
+  .panel-header {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    padding-left: 12px;
+  }
+
+  .panel-body {
+    padding-left: 12px;
+  }
+
+  /* Panel color variants */
+  .panel.blue::before { background: var(--lcars-blue); }
+  .panel.blue .panel-header { color: var(--lcars-lightblue); }
+
+  .panel.teal::before { background: var(--lcars-teal); }
+  .panel.teal .panel-header { color: var(--lcars-teal); }
+
+  .panel.orange::before { background: var(--lcars-orange); }
+  .panel.orange .panel-header { color: var(--lcars-orange); }
+
+  .panel.purple::before { background: var(--lcars-purple); }
+  .panel.purple .panel-header { color: var(--lcars-purple); }
+
+  .panel.gold::before { background: var(--lcars-gold); }
+  .panel.gold .panel-header { color: var(--lcars-gold); }
+
+  .panel.pink::before { background: var(--lcars-pink); }
+  .panel.pink .panel-header { color: var(--lcars-pink); }
+
+  /* === STATUS DISPLAY === */
+  .status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+  }
+
+  .status-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .status-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--lcars-gold);
+    text-transform: uppercase;
+  }
+
+  .status-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--lcars-lightblue);
+    line-height: 1;
+  }
+
+  .status-bar-track {
+    height: 8px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 4px;
+  }
+
+  .status-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 1s ease;
+  }
+
+  /* === GRAPH CANVAS === */
+  .graph-canvas {
+    width: 100%;
+    height: 120px;
+    display: block;
+  }
+
+  /* === SENSOR SWEEP === */
+  .sensor-container {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+  }
+
+  .sensor-canvas {
+    width: 200px;
+    height: 200px;
+  }
+
+  /* === CALCULATOR === */
+  .calc-display {
+    background: rgba(0,0,0,0.6);
+    border: 1px solid var(--lcars-blue);
+    border-radius: 6px;
+    padding: 12px 16px;
+    text-align: right;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--lcars-lightblue);
+    margin-bottom: 12px;
+    min-height: 54px;
+    overflow: hidden;
+    font-family: var(--lcars-font);
+    letter-spacing: 2px;
+  }
+
+  .calc-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+  }
+
+  .calc-btn {
+    padding: 14px 8px;
+    font-family: var(--lcars-font);
+    font-size: 18px;
+    font-weight: 700;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #000;
+    transition: filter 0.1s;
+    letter-spacing: 1px;
+  }
+
+  .calc-btn:hover { filter: brightness(1.3); }
+  .calc-btn:active { filter: brightness(0.7); }
+  .calc-btn.num { background: var(--lcars-blue); }
+  .calc-btn.op { background: var(--lcars-orange); }
+  .calc-btn.fn { background: var(--lcars-teal); }
+  .calc-btn.eq { background: var(--lcars-gold); }
+  .calc-btn.clear { background: var(--lcars-red); color: #fff; }
+
+  /* === NOTEPAD === */
+  .notepad-area {
+    width: 100%;
+    min-height: 300px;
+    background: rgba(0,0,0,0.5);
+    border: 1px solid var(--lcars-blue);
+    border-radius: 6px;
+    padding: 16px;
+    color: var(--lcars-lightblue);
+    font-family: var(--lcars-font);
+    font-size: 16px;
+    letter-spacing: 1px;
+    line-height: 1.6;
+    resize: vertical;
+    outline: none;
+  }
+
+  .notepad-area::placeholder { color: rgba(153, 204, 255, 0.3); }
+
+  .notepad-toolbar {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+
+  .notepad-tool-btn {
+    padding: 6px 16px;
+    font-family: var(--lcars-font);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #000;
+    background: var(--lcars-teal);
+    text-transform: uppercase;
+  }
+
+  .notepad-tool-btn:hover { filter: brightness(1.3); }
+
+  .notepad-status {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--lcars-gold);
+    letter-spacing: 1px;
+  }
+
+  /* === FILE BROWSER === */
+  .file-path-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid var(--lcars-blue);
+    border-radius: 6px;
+    margin-bottom: 12px;
+    font-size: 14px;
+    color: var(--lcars-lightblue);
+    letter-spacing: 1px;
+  }
+
+  .file-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .file-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .file-item:hover { background: rgba(102, 136, 204, 0.15); }
+
+  .file-icon {
+    font-size: 20px;
+    width: 28px;
+    text-align: center;
+  }
+
+  .file-name {
+    flex: 1;
+    font-size: 15px;
+    color: var(--lcars-lightblue);
+    letter-spacing: 1px;
+  }
+
+  .file-size {
+    font-size: 12px;
+    color: var(--lcars-gold);
+    letter-spacing: 1px;
+  }
+
+  .file-date {
+    font-size: 12px;
+    color: var(--lcars-teal);
+    letter-spacing: 1px;
+  }
+
+  /* === WEATHER WIDGET === */
+  .weather-main {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 16px;
+  }
+
+  .weather-temp {
+    font-size: 56px;
+    font-weight: 700;
+    color: var(--lcars-lightblue);
+    line-height: 1;
+  }
+
+  .weather-icon-display {
+    font-size: 48px;
+  }
+
+  .weather-desc {
+    font-size: 16px;
+    color: var(--lcars-teal);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .weather-details {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
+  .weather-detail-item {
+    text-align: center;
+  }
+
+  .weather-detail-label {
+    font-size: 11px;
+    color: var(--lcars-gold);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .weather-detail-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--lcars-lightblue);
+  }
+
+  /* === STARDATE CLOCK === */
+  .clock-main {
+    text-align: center;
+    padding: 20px;
+  }
+
+  .clock-time {
+    font-size: 72px;
+    font-weight: 700;
+    color: var(--lcars-lightblue);
+    letter-spacing: 4px;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .clock-date {
+    font-size: 20px;
+    color: var(--lcars-teal);
+    letter-spacing: 3px;
+    margin-bottom: 4px;
+  }
+
+  .clock-stardate {
+    font-size: 24px;
+    color: var(--lcars-orange);
+    letter-spacing: 3px;
+  }
+
+  .clock-analog {
+    width: 200px;
+    height: 200px;
+    margin: 20px auto;
+  }
+
+  /* === SCROLLBAR === */
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+  ::-webkit-scrollbar-thumb { background: var(--lcars-blue); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--lcars-lightblue); }
+
+  /* === ANIMATIONS === */
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+  @keyframes scanline {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100vh); }
+  }
+
+  .scanline-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(transparent, rgba(102, 204, 204, 0.04), transparent);
+    animation: scanline 8s linear infinite;
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  .pulse { animation: pulse 2s ease-in-out infinite; }
+
+  /* === BOOT SEQUENCE === */
+  .boot-screen {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    transition: opacity 0.8s ease;
+  }
+
+  .boot-screen.hidden { opacity: 0; pointer-events: none; }
+
+  .boot-text {
+    font-family: var(--lcars-font);
+    font-size: 16px;
+    color: var(--lcars-teal);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    opacity: 0;
+    transition: opacity 0.3s;
+    margin: 4px 0;
+  }
+
+  .boot-text.visible { opacity: 1; }
+
+  .boot-title {
+    font-size: 42px;
+    color: var(--lcars-lightblue);
+    letter-spacing: 12px;
+    margin-bottom: 40px;
+  }
+
+  .boot-progress {
+    width: 400px;
+    height: 6px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 3px;
+    margin-top: 30px;
+    overflow: hidden;
+  }
+
+  .boot-progress-fill {
+    height: 100%;
+    background: var(--lcars-teal);
+    border-radius: 3px;
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+
+  /* === ALERT BAR === */
+  .alert-bar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    padding: 10px 20px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    z-index: 500;
+    transform: translateY(-100%);
+    transition: transform 0.4s ease;
+  }
+
+  .alert-bar.show { transform: translateY(0); }
+  .alert-bar.red { background: var(--lcars-red); color: #fff; }
+  .alert-bar.yellow { background: var(--lcars-orange); color: #000; }
+  .alert-bar.blue { background: var(--lcars-blue); color: #000; }
+
+  /* === MINI MAP / STARFIELD === */
+  .starfield-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: -1;
+    opacity: 0.3;
+  }
+</style>
+</head>
+<body>
+
+<!-- Starfield Background -->
+<canvas class="starfield-canvas" id="starfield"></canvas>
+
+<!-- Scanline Effect -->
+<div class="scanline-overlay"></div>
+
+<!-- Alert Bar -->
+<div class="alert-bar" id="alertBar"></div>
+
+<!-- Boot Sequence -->
+<div class="boot-screen" id="bootScreen">
+  <div class="boot-text boot-title" id="bootTitle">LCARS OS</div>
+  <div class="boot-text" id="boot1">Initializing Voyager Operating System...</div>
+  <div class="boot-text" id="boot2">Loading Bio-Neural Gel Pack Interface...</div>
+  <div class="boot-text" id="boot3">Establishing Quantum Core Link...</div>
+  <div class="boot-text" id="boot4">Calibrating Sensor Arrays...</div>
+  <div class="boot-text" id="boot5">Loading LCARS Display Modules...</div>
+  <div class="boot-text" id="boot6">System Ready — Welcome Aboard</div>
+  <div class="boot-progress"><div class="boot-progress-fill" id="bootProgress"></div></div>
+</div>
+
+<!-- Main LCARS Frame -->
+<div class="lcars-frame" id="mainFrame" style="opacity: 0;">
+
+  <!-- Sidebar -->
+  <div class="lcars-sidebar">
+    <div class="sidebar-top">LCARS 47</div>
+    <div class="sidebar-buttons">
+      <button class="sidebar-btn active" style="background: var(--lcars-orange);" onclick="switchPanel('ops')" id="btn-ops">Operations</button>
+      <button class="sidebar-btn" style="background: var(--lcars-teal);" onclick="switchPanel('tactical')" id="btn-tactical">Tactical</button>
+      <button class="sidebar-btn" style="background: var(--lcars-lightblue);" onclick="switchPanel('science')" id="btn-science">Science</button>
+      <button class="sidebar-btn" style="background: var(--lcars-gold);" onclick="switchPanel('comms')" id="btn-comms">Comms</button>
+      <button class="sidebar-btn" style="background: var(--lcars-lavender);" onclick="switchPanel('computer')" id="btn-computer">Computer</button>
+      <button class="sidebar-btn" style="background: var(--lcars-peach);" onclick="switchPanel('files')" id="btn-files">Database</button>
+      <button class="sidebar-btn" style="background: var(--lcars-pink);" onclick="switchPanel('notepad')" id="btn-notepad">Log Entry</button>
+      <button class="sidebar-btn" style="background: var(--lcars-cyan);" onclick="switchPanel('settings')" id="btn-settings">Config</button>
+    </div>
+    <div class="sidebar-bottom">NCC-74656</div>
+  </div>
+
+  <!-- Header -->
+  <div class="lcars-header">
+    <div class="header-elbow"></div>
+    <div class="header-bar">
+      <div class="header-segment" style="background: var(--lcars-teal);" id="headerStardate">SD 79145.7</div>
+      <div class="header-title" id="panelTitle">OPERATIONS</div>
+      <div class="header-segment" style="background: var(--lcars-gold);" id="headerTime">00:00:00</div>
+      <div class="header-segment" style="background: var(--lcars-orange);">
+        <span id="headerStatus" class="pulse">● ONLINE</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="lcars-content">
+
+    <!-- OPS Panel -->
+    <div class="panel-container active" id="panel-ops">
+      <div class="panel-grid" style="grid-template-columns: 1fr 1fr; grid-template-rows: auto auto;">
+        <div class="panel blue">
+          <div class="panel-header">Processor Core</div>
+          <div class="panel-body">
+            <div class="status-item">
+              <span class="status-label">CPU Utilization</span>
+              <span class="status-value" id="cpuValue">0%</span>
+              <div class="status-bar-track"><div class="status-bar-fill" id="cpuBar" style="width: 0%; background: var(--lcars-blue);"></div></div>
+            </div>
+            <canvas class="graph-canvas" id="cpuGraph"></canvas>
+          </div>
+        </div>
+        <div class="panel teal">
+          <div class="panel-header">Memory Banks</div>
+          <div class="panel-body">
+            <div class="status-item">
+              <span class="status-label">Memory Allocation</span>
+              <span class="status-value" id="memValue">0%</span>
+              <div class="status-bar-track"><div class="status-bar-fill" id="memBar" style="width: 0%; background: var(--lcars-teal);"></div></div>
+            </div>
+            <canvas class="graph-canvas" id="memGraph"></canvas>
+          </div>
+        </div>
+        <div class="panel orange">
+          <div class="panel-header">Power Grid</div>
+          <div class="panel-body">
+            <div class="status-grid">
+              <div class="status-item">
+                <span class="status-label">Warp Core</span>
+                <span class="status-value" id="warpPower">98.2%</span>
+                <div class="status-bar-track"><div class="status-bar-fill" style="width: 98%; background: var(--lcars-orange);"></div></div>
+              </div>
+              <div class="status-item">
+                <span class="status-label">Impulse Drive</span>
+                <span class="status-value" id="impulsePower">100%</span>
+                <div class="status-bar-track"><div class="status-bar-fill" style="width: 100%; background: var(--lcars-orange);"></div></div>
+              </div>
+              <div class="status-item">
+                <span class="status-label">Aux Power</span>
+                <span class="status-value" id="auxPower">87.5%</span>
+                <div class="status-bar-track"><div class="status-bar-fill" style="width: 87%; background: var(--lcars-orange);"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="panel purple">
+          <div class="panel-header">Network Subspace</div>
+          <div class="panel-body">
+            <div class="status-item">
+              <span class="status-label">Bandwidth</span>
+              <span class="status-value" id="netValue">0 Mb/s</span>
+              <div class="status-bar-track"><div class="status-bar-fill" id="netBar" style="width: 0%; background: var(--lcars-purple);"></div></div>
+            </div>
+            <canvas class="graph-canvas" id="netGraph"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TACTICAL Panel -->
+    <div class="panel-container" id="panel-tactical">
+      <div class="panel-grid" style="grid-template-columns: 1fr 1fr;">
+        <div class="panel blue" style="grid-column: 1 / -1;">
+          <div class="panel-header">Shield Status</div>
+          <div class="panel-body">
+            <div class="status-grid" style="grid-template-columns: repeat(4, 1fr);">
+              <div class="status-item">
+                <span class="status-label">Forward</span>
+                <span class="status-value" id="shieldFwd">100%</span>
+                <div class="status-bar-track"><div class="status-bar-fill" id="shieldFwdBar" style="width:100%; background: var(--lcars-blue);"></div></div>
+              </div>
+              <div class="status-item">
+                <span class="status-label">Aft</span>
+                <span class="status-value" id="shieldAft">100%</span>
+                <div class="status-bar-track"><div class="status-bar-fill" id="shieldAftBar" style="width:100%; background: var(--lcars-blue);"></div></div>
+              </div>
+              <div class="status-item">
+                <span class="status-label">Port</span>
+                <span class="status-value" id="shieldPort">100%</span>
+                <div class="status-bar-track"><div class="status-bar-fill" id="shieldPortBar" style="width:100%; background: var(--lcars-blue);"></div></div>
+              </div>
+              <div class="status-item">
+                <span class="status-label">Starboard</span>
+                <span class="status-value" id="shieldStbd">100%</span>
+                <div class="status-bar-track"><div class="status-bar-fill" id="shieldStbdBar" style="width:100%; background: var(--lcars-blue);"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="panel teal">
+          <div class="panel-header">Sensor Sweep</div>
+          <div class="panel-body" style="display: flex; justify-content: center;">
+            <canvas class="sensor-canvas" id="sensorCanvas" width="240" height="240"></canvas>
+          </div>
+        </div>
+        <div class="panel orange">
+          <div class="panel-header">Weapons Array</div>
+          <div class="panel-body">
+            <div class="status-grid" style="grid-template-columns: 1fr;">
+              <div class="status-item">
+                <span class="status-label">Phaser Banks</span>
+                <span class="status-value" style="color: var(--lcars-teal);">CHARGED</span>
+                <div class="status-bar-track"><div class="status-bar-fill" style="width:100%; background: var(--lcars-teal);"></div></div>
+              </div>
+              <div class="status-item">
+                <span class="status-label">Photon Torpedoes</span>
+                <span class="status-value" id="torpCount">38</span>
+              </div>
+              <div class="status-item">
+                <span class="status-label">Targeting Lock</span>
+                <span class="status-value" style="color: var(--lcars-gold);">STANDBY</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCIENCE Panel -->
+    <div class="panel-container" id="panel-science">
+      <div class="panel-grid" style="grid-template-columns: 1fr 1fr;">
+        <div class="panel teal" style="grid-column: 1 / -1;">
+          <div class="panel-header">Astrometrics</div>
+          <div class="panel-body">
+            <canvas id="astrometricsCanvas" width="800" height="250" style="width:100%; height:250px; border-radius:8px;"></canvas>
+          </div>
+        </div>
+        <div class="panel blue">
+          <div class="panel-header">Stellar Cartography</div>
+          <div class="panel-body">
+            <div class="status-grid" style="grid-template-columns: 1fr;">
+              <div class="status-item">
+                <span class="status-label">Current Sector</span>
+                <span class="status-value" style="font-size:20px;">Delta Quadrant — Grid 986</span>
+              </div>
+              <div class="status-item">
+                <span class="status-label">Nearest Starbase</span>
+                <span class="status-value" style="font-size:18px;">67,421 Light Years</span>
+              </div>
+              <div class="status-item">
+                <span class="status-label">Subspace Anomalies</span>
+                <span class="status-value" style="font-size:18px; color: var(--lcars-gold);" id="anomalyCount">3 Detected</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="panel purple">
+          <div class="panel-header">Environmental</div>
+          <div class="panel-body">
+            <div class="status-grid" style="grid-template-columns: 1fr;">
+              <div class="status-item">
+                <span class="status-label">Atmosphere</span>
+                <span class="status-value" style="font-size:18px; color: var(--lcars-teal);">NOMINAL</span>
+              </div>
+              <div class="status-item">
+                <span class="status-label">Gravity</span>
+                <span class="status-value" style="font-size:18px;">1.0 G</span>
+              </div>
+              <div class="status-item">
+                <span class="status-label">Radiation</span>
+                <span class="status-value" style="font-size:18px; color: var(--lcars-teal);">0.02 mSv</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMMS Panel -->
+    <div class="panel-container" id="panel-comms">
+      <div class="panel-grid" style="grid-template-columns: 1fr 1fr;">
+        <div class="panel gold" style="grid-column: 1 / -1;">
+          <div class="panel-header">Weather Station — Earth</div>
+          <div class="panel-body">
+            <div class="weather-main">
+              <div class="weather-icon-display">🌤</div>
+              <div>
+                <div class="weather-temp" id="weatherTemp">72°</div>
+                <div class="weather-desc" id="weatherDesc">PARTLY CLOUDY</div>
+              </div>
+            </div>
+            <div class="weather-details">
+              <div class="weather-detail-item">
+                <div class="weather-detail-label">Humidity</div>
+                <div class="weather-detail-value" id="weatherHumidity">45%</div>
+              </div>
+              <div class="weather-detail-item">
+                <div class="weather-detail-label">Wind</div>
+                <div class="weather-detail-value" id="weatherWind">12 MPH</div>
+              </div>
+              <div class="weather-detail-item">
+                <div class="weather-detail-label">Pressure</div>
+                <div class="weather-detail-value" id="weatherPressure">30.1</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="panel blue">
+          <div class="panel-header">Subspace Channels</div>
+          <div class="panel-body">
+            <div class="status-grid" style="grid-template-columns: 1fr;">
+              <div class="status-item">
+                <span class="status-label">Channel Alpha</span>
+                <span class="status-value" style="font-size:16px; color: var(--lcars-teal);">● OPEN</span>
+              </div>
+              <div class="status-item">
+                <span class="status-label">Channel Beta</span>
+                <span class="status-value" style="font-size:16px; color: var(--lcars-gold);">● ENCRYPTED</span>
+              </div>
+              <div class="status-item">
+                <span class="status-label">Emergency</span>
+                <span class="status-value" style="font-size:16px; color: var(--lcars-teal);">● STANDBY</span>
+              </div>
+              <div class="status-item">
+                <span class="status-label">Long Range</span>
+                <span class="status-value" style="font-size:16px; color: var(--lcars-red);">● NO SIGNAL</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="panel teal">
+          <div class="panel-header">Chronometer</div>
+          <div class="panel-body">
+            <div class="clock-main">
+              <div class="clock-time" id="clockTime">00:00:00</div>
+              <div class="clock-date" id="clockDate">STARDATE 79145.7</div>
+              <div class="clock-stardate" id="clockStardate"></div>
+              <canvas class="clock-analog" id="clockCanvas" width="200" height="200"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMPUTER Panel (Calculator) -->
+    <div class="panel-container" id="panel-computer">
+      <div class="panel-grid" style="grid-template-columns: 1fr 1fr;">
+        <div class="panel blue">
+          <div class="panel-header">Computational Interface</div>
+          <div class="panel-body">
+            <div class="calc-display" id="calcDisplay">0</div>
+            <div class="calc-grid">
+              <button class="calc-btn clear" onclick="calcClear()">C</button>
+              <button class="calc-btn fn" onclick="calcInput('(')">(</button>
+              <button class="calc-btn fn" onclick="calcInput(')')">)</button>
+              <button class="calc-btn op" onclick="calcInput('/')">÷</button>
+              <button class="calc-btn num" onclick="calcInput('7')">7</button>
+              <button class="calc-btn num" onclick="calcInput('8')">8</button>
+              <button class="calc-btn num" onclick="calcInput('9')">9</button>
+              <button class="calc-btn op" onclick="calcInput('*')">×</button>
+              <button class="calc-btn num" onclick="calcInput('4')">4</button>
+              <button class="calc-btn num" onclick="calcInput('5')">5</button>
+              <button class="calc-btn num" onclick="calcInput('6')">6</button>
+              <button class="calc-btn op" onclick="calcInput('-')">−</button>
+              <button class="calc-btn num" onclick="calcInput('1')">1</button>
+              <button class="calc-btn num" onclick="calcInput('2')">2</button>
+              <button class="calc-btn num" onclick="calcInput('3')">3</button>
+              <button class="calc-btn op" onclick="calcInput('+')">+</button>
+              <button class="calc-btn num" onclick="calcInput('0')" style="grid-column: span 2;">0</button>
+              <button class="calc-btn num" onclick="calcInput('.')">.</button>
+              <button class="calc-btn eq" onclick="calcEquals()">=</button>
+            </div>
+          </div>
+        </div>
+        <div class="panel teal">
+          <div class="panel-header">System Directory</div>
+          <div class="panel-body">
+            <div class="status-grid" style="grid-template-columns: 1fr;">
+              <div class="status-item">
+                <span class="status-label">OS Version</span>
+                <span class="status-value" style="font-size:16px;">LCARS 4.7.2 Voyager</span>
+              </div>
+              <div class="status-item">
+                <span class="status-label">Architecture</span>
+                <span class="status-value" style="font-size:16px;">Apple Silicon (ARM64)</span>
+              </div>
+              <div class="status-item">
+                <span class="status-label">Bio-Neural Gel Packs</span>
+                <span class="status-value" style="font-size:16px; color: var(--lcars-teal);">47 / 47 ONLINE</span>
+              </div>
+              <div class="status-item">
+                <span class="status-label">Uptime</span>
+                <span class="status-value" style="font-size:16px;" id="uptimeValue">0d 0h 0m</span>
+              </div>
+              <div class="status-item">
+                <span class="status-label">Holographic Subroutines</span>
+                <span class="status-value" style="font-size:16px; color: var(--lcars-gold);">EMH Mark I Active</span>
+              </div>
+              <div class="status-item">
+                <span class="status-label">Delta Quadrant ETA</span>
+                <span class="status-value" style="font-size:16px;">~70 Years</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FILES Panel -->
+    <div class="panel-container" id="panel-files">
+      <div class="panel-grid" style="grid-template-columns: 1fr;">
+        <div class="panel blue">
+          <div class="panel-header">Ship's Database</div>
+          <div class="panel-body">
+            <div class="file-path-bar">
+              <span style="color: var(--lcars-gold);">◆</span>
+              <span id="filePath">/lcars/database/</span>
+            </div>
+            <div class="file-list" id="fileList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTEPAD Panel -->
+    <div class="panel-container" id="panel-notepad">
+      <div class="panel-grid" style="grid-template-columns: 1fr;">
+        <div class="panel pink">
+          <div class="panel-header">Captain's Log</div>
+          <div class="panel-body">
+            <div class="notepad-toolbar">
+              <button class="notepad-tool-btn" onclick="insertLogDate()">Insert Stardate</button>
+              <button class="notepad-tool-btn" onclick="clearLog()">New Entry</button>
+              <button class="notepad-tool-btn" onclick="saveLog()">Save to Database</button>
+            </div>
+            <textarea class="notepad-area" id="notepadArea" placeholder="Captain's log, supplemental..."></textarea>
+            <div class="notepad-status" id="notepadStatus">Ready — 0 characters</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS Panel -->
+    <div class="panel-container" id="panel-settings">
+      <div class="panel-grid" style="grid-template-columns: 1fr 1fr;">
+        <div class="panel gold">
+          <div class="panel-header">Alert Controls</div>
+          <div class="panel-body">
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <button class="sidebar-btn" style="background:var(--lcars-red); border-radius:6px; justify-content:center; color:#fff;" onclick="triggerAlert('red')">RED ALERT</button>
+              <button class="sidebar-btn" style="background:var(--lcars-orange); border-radius:6px; justify-content:center;" onclick="triggerAlert('yellow')">YELLOW ALERT</button>
+              <button class="sidebar-btn" style="background:var(--lcars-blue); border-radius:6px; justify-content:center;" onclick="triggerAlert('blue')">BLUE ALERT</button>
+              <button class="sidebar-btn" style="background:var(--lcars-teal); border-radius:6px; justify-content:center;" onclick="triggerAlert('clear')">CLEAR ALERT</button>
+            </div>
+          </div>
+        </div>
+        <div class="panel teal">
+          <div class="panel-header">Audio Controls</div>
+          <div class="panel-body">
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <button class="sidebar-btn" style="background:var(--lcars-teal); border-radius:6px; justify-content:center;" onclick="toggleSound()">
+                <span id="soundToggle">ENABLE AUDIO</span>
+              </button>
+              <button class="sidebar-btn" style="background:var(--lcars-lavender); border-radius:6px; justify-content:center;" onclick="playTestTone()">TEST COMM SIGNAL</button>
+              <button class="sidebar-btn" style="background:var(--lcars-peach); border-radius:6px; justify-content:center;" onclick="playBoatswain()">BOATSWAIN WHISTLE</button>
+            </div>
+          </div>
+        </div>
+        <div class="panel purple" style="grid-column: 1 / -1;">
+          <div class="panel-header">Display Configuration</div>
+          <div class="panel-body">
+            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+              <button class="sidebar-btn" style="background:var(--lcars-blue); border-radius:6px; padding: 12px 24px;" onclick="setTheme('voyager')">VOYAGER</button>
+              <button class="sidebar-btn" style="background:var(--lcars-orange); border-radius:6px; padding: 12px 24px;" onclick="setTheme('tng')">TNG CLASSIC</button>
+              <button class="sidebar-btn" style="background:var(--lcars-teal); border-radius:6px; padding: 12px 24px;" onclick="setTheme('dark')">DARK MODE</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="lcars-footer">
+    <div class="footer-elbow"></div>
+    <div class="footer-bar">
+      <div class="footer-segment" style="background: var(--lcars-teal);">47-ALPHA</div>
+      <div class="footer-segment" style="background: var(--lcars-gold);">SEC LVL 4</div>
+      <div class="footer-segment" style="background: var(--lcars-blue);" id="footerAlert">ALL CLEAR</div>
+      <div class="footer-status" id="footerStatus">LCARS INTERFACE ACTIVE — ALL SYSTEMS NOMINAL</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================
+// LCARS OS — Voyager Edition
+// Core System Runtime
+// ============================================
+
+// === AUDIO ENGINE ===
+let audioEnabled = false;
+let audioCtx = null;
+
+function initAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
+
+function playTone(freq, duration, type = 'sine', volume = 0.15) {
+  if (!audioEnabled || !audioCtx) return;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+  gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start();
+  osc.stop(audioCtx.currentTime + duration);
+}
+
+function playBeep() { playTone(1200, 0.08, 'sine', 0.1); }
+function playClick() { playTone(800, 0.04, 'square', 0.05); }
+function playAlert(type) {
+  if (type === 'red') {
+    playTone(440, 0.3, 'sawtooth', 0.2);
+    setTimeout(() => playTone(330, 0.3, 'sawtooth', 0.2), 350);
+  } else if (type === 'yellow') {
+    playTone(660, 0.2, 'sine', 0.15);
+    setTimeout(() => playTone(550, 0.2, 'sine', 0.15), 250);
+  }
+}
+
+function playTestTone() {
+  initAudio();
+  audioEnabled = true;
+  playTone(852, 0.15, 'sine', 0.2);
+  setTimeout(() => playTone(1200, 0.15, 'sine', 0.2), 180);
+  setTimeout(() => playTone(1600, 0.3, 'sine', 0.15), 360);
+}
+
+function playBoatswain() {
+  initAudio();
+  audioEnabled = true;
+  playTone(1047, 0.15, 'sine', 0.2);
+  setTimeout(() => playTone(1319, 0.12, 'sine', 0.2), 160);
+  setTimeout(() => playTone(1568, 0.3, 'sine', 0.18), 300);
+  setTimeout(() => playTone(2093, 0.5, 'sine', 0.12), 620);
+}
+
+function toggleSound() {
+  initAudio();
+  audioEnabled = !audioEnabled;
+  document.getElementById('soundToggle').textContent = audioEnabled ? 'DISABLE AUDIO' : 'ENABLE AUDIO';
+  if (audioEnabled) playBeep();
+}
+
+// === BOOT SEQUENCE ===
+const bootStartTime = Date.now();
+
+function runBoot() {
+  const steps = ['bootTitle', 'boot1', 'boot2', 'boot3', 'boot4', 'boot5', 'boot6'];
+  const progress = document.getElementById('bootProgress');
+  let i = 0;
+
+  function showNext() {
+    if (i < steps.length) {
+      document.getElementById(steps[i]).classList.add('visible');
+      progress.style.width = ((i + 1) / steps.length * 100) + '%';
+      i++;
+      setTimeout(showNext, i === 1 ? 400 : 500);
+    } else {
+      setTimeout(() => {
+        document.getElementById('bootScreen').classList.add('hidden');
+        document.getElementById('mainFrame').style.opacity = '1';
+        document.getElementById('mainFrame').style.transition = 'opacity 0.8s ease';
+        startSystems();
+      }, 800);
+    }
+  }
+  showNext();
+}
+
+// === PANEL SWITCHING ===
+let currentPanel = 'ops';
+const panelTitles = {
+  ops: 'OPERATIONS', tactical: 'TACTICAL', science: 'SCIENCE',
+  comms: 'COMMUNICATIONS', computer: 'COMPUTER CORE',
+  files: 'DATABASE ACCESS', notepad: "CAPTAIN'S LOG", settings: 'CONFIGURATION'
+};
+
+function switchPanel(name) {
+  playClick();
+  document.querySelectorAll('.panel-container').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  document.getElementById('btn-' + name).classList.add('active');
+  document.getElementById('panelTitle').textContent = panelTitles[name] || name.toUpperCase();
+  currentPanel = name;
+}
+
+// === SYSTEM MONITORING ===
+const cpuHistory = new Array(60).fill(0);
+const memHistory = new Array(60).fill(0);
+const netHistory = new Array(60).fill(0);
+
+function updateSystems() {
+  // Simulate system values
+  const cpu = 15 + Math.random() * 40 + Math.sin(Date.now() / 3000) * 10;
+  const mem = 45 + Math.random() * 10 + Math.sin(Date.now() / 8000) * 8;
+  const net = 20 + Math.random() * 60;
+
+  cpuHistory.push(Math.max(0, Math.min(100, cpu)));
+  cpuHistory.shift();
+  memHistory.push(Math.max(0, Math.min(100, mem)));
+  memHistory.shift();
+  netHistory.push(Math.max(0, Math.min(100, net)));
+  netHistory.shift();
+
+  document.getElementById('cpuValue').textContent = cpu.toFixed(1) + '%';
+  document.getElementById('cpuBar').style.width = cpu + '%';
+  document.getElementById('memValue').textContent = mem.toFixed(1) + '%';
+  document.getElementById('memBar').style.width = mem + '%';
+  document.getElementById('netValue').textContent = (net * 1.2).toFixed(0) + ' Mb/s';
+  document.getElementById('netBar').style.width = net + '%';
+
+  // Fluctuate power
+  const wp = 95 + Math.random() * 5;
+  document.getElementById('warpPower').textContent = wp.toFixed(1) + '%';
+  const ap = 80 + Math.random() * 15;
+  document.getElementById('auxPower').textContent = ap.toFixed(1) + '%';
+
+  // Draw graphs
+  drawGraph('cpuGraph', cpuHistory, 'rgba(102, 136, 204, 0.8)', 'rgba(102, 136, 204, 0.1)');
+  drawGraph('memGraph', memHistory, 'rgba(102, 204, 204, 0.8)', 'rgba(102, 204, 204, 0.1)');
+  drawGraph('netGraph', netHistory, 'rgba(204, 119, 255, 0.8)', 'rgba(204, 119, 255, 0.1)');
+
+  // Uptime
+  const uptime = Date.now() - bootStartTime;
+  const hrs = Math.floor(uptime / 3600000);
+  const mins = Math.floor((uptime % 3600000) / 60000);
+  const secs = Math.floor((uptime % 60000) / 1000);
+  document.getElementById('uptimeValue').textContent = `0d ${hrs}h ${mins}m ${secs}s`;
+}
+
+function drawGraph(canvasId, data, lineColor, fillColor) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width = canvas.offsetWidth * 2;
+  const h = canvas.height = canvas.offsetHeight * 2;
+  ctx.clearRect(0, 0, w, h);
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(102, 136, 204, 0.08)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 5; i++) {
+    const y = (h / 5) * i;
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+  }
+
+  // Data line
+  ctx.strokeStyle = lineColor;
+  ctx.lineWidth = 3;
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  for (let i = 0; i < data.length; i++) {
+    const x = (w / (data.length - 1)) * i;
+    const y = h - (data[i] / 100) * h;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Fill
+  ctx.lineTo(w, h);
+  ctx.lineTo(0, h);
+  ctx.closePath();
+  ctx.fillStyle = fillColor;
+  ctx.fill();
+}
+
+// === SENSOR SWEEP ===
+let sensorAngle = 0;
+function drawSensor() {
+  const canvas = document.getElementById('sensorCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const cx = 120, cy = 120, r = 110;
+  ctx.clearRect(0, 0, 240, 240);
+
+  // Background circles
+  ctx.strokeStyle = 'rgba(102, 136, 204, 0.15)';
+  ctx.lineWidth = 1;
+  for (let i = 1; i <= 4; i++) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, (r / 4) * i, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  // Crosshairs
+  ctx.beginPath(); ctx.moveTo(cx - r, cy); ctx.lineTo(cx + r, cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx, cy - r); ctx.lineTo(cx, cy + r); ctx.stroke();
+
+  // Sweep
+  const grad = ctx.createConicalGradient ? null : null;
+  ctx.fillStyle = 'rgba(0, 204, 204, 0.12)';
+  ctx.beginPath();
+  ctx.moveTo(cx, cy);
+  ctx.arc(cx, cy, r, sensorAngle - 0.5, sensorAngle, false);
+  ctx.closePath();
+  ctx.fill();
+
+  // Sweep line
+  ctx.strokeStyle = 'rgba(0, 204, 204, 0.8)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(cx, cy);
+  ctx.lineTo(cx + Math.cos(sensorAngle) * r, cy + Math.sin(sensorAngle) * r);
+  ctx.stroke();
+
+  // Center dot
+  ctx.fillStyle = var_lcars_teal;
+  ctx.beginPath();
+  ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Random blips
+  if (Math.random() > 0.95) {
+    const blipAngle = Math.random() * Math.PI * 2;
+    const blipR = 20 + Math.random() * 80;
+    blips.push({ x: cx + Math.cos(blipAngle) * blipR, y: cy + Math.sin(blipAngle) * blipR, life: 60 });
+  }
+
+  blips = blips.filter(b => b.life > 0);
+  blips.forEach(b => {
+    ctx.fillStyle = `rgba(0, 204, 204, ${b.life / 60})`;
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, 3, 0, Math.PI * 2);
+    ctx.fill();
+    b.life--;
+  });
+
+  sensorAngle += 0.03;
+}
+let blips = [];
+const var_lcars_teal = '#00cccc';
+
+// === ASTROMETRICS ===
+let stars = [];
+function initStarfield3D() {
+  stars = [];
+  for (let i = 0; i < 300; i++) {
+    stars.push({
+      x: Math.random() * 2 - 1,
+      y: Math.random() * 2 - 1,
+      z: Math.random(),
+      size: 0.5 + Math.random() * 1.5
+    });
+  }
+}
+
+function drawAstrometrics() {
+  const canvas = document.getElementById('astrometricsCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width, h = canvas.height;
+  ctx.fillStyle = 'rgba(0, 5, 15, 0.3)';
+  ctx.fillRect(0, 0, w, h);
+
+  // Grid
+  ctx.strokeStyle = 'rgba(102, 136, 204, 0.06)';
+  ctx.lineWidth = 1;
+  for (let x = 0; x < w; x += 40) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+  }
+  for (let y = 0; y < h; y += 40) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+  }
+
+  stars.forEach(s => {
+    s.z -= 0.002;
+    if (s.z <= 0) { s.z = 1; s.x = Math.random() * 2 - 1; s.y = Math.random() * 2 - 1; }
+    const sx = (s.x / s.z) * 300 + w / 2;
+    const sy = (s.y / s.z) * 150 + h / 2;
+    const sz = (1 - s.z) * s.size * 2;
+    const brightness = 1 - s.z;
+
+    if (sx > 0 && sx < w && sy > 0 && sy < h) {
+      ctx.fillStyle = `rgba(153, 204, 255, ${brightness})`;
+      ctx.beginPath();
+      ctx.arc(sx, sy, sz, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  });
+}
+
+// === BACKGROUND STARFIELD ===
+let bgStars = [];
+function initBgStarfield() {
+  const canvas = document.getElementById('starfield');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  bgStars = [];
+  for (let i = 0; i < 200; i++) {
+    bgStars.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: 0.3 + Math.random() * 1.2,
+      a: 0.2 + Math.random() * 0.6,
+      twinkle: Math.random() * Math.PI * 2
+    });
+  }
+}
+
+function drawBgStarfield() {
+  const canvas = document.getElementById('starfield');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  bgStars.forEach(s => {
+    s.twinkle += 0.02 + Math.random() * 0.01;
+    const alpha = s.a * (0.5 + 0.5 * Math.sin(s.twinkle));
+    ctx.fillStyle = `rgba(180, 210, 255, ${alpha})`;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    ctx.fill();
+  });
+}
+
+// === CLOCK ===
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2, '0');
+  const m = String(now.getMinutes()).padStart(2, '0');
+  const s = String(now.getSeconds()).padStart(2, '0');
+  const timeStr = `${h}:${m}:${s}`;
+
+  document.getElementById('headerTime').textContent = timeStr;
+  if (document.getElementById('clockTime'))
+    document.getElementById('clockTime').textContent = timeStr;
+
+  // Stardate calculation (fun approximation)
+  const startDate = new Date('2323-01-01');
+  const refDate = new Date('2000-01-01');
+  const elapsed = (now - refDate) / (1000 * 60 * 60 * 24 * 365.25);
+  const stardate = (41000 + elapsed * 1000).toFixed(1);
+
+  document.getElementById('headerStardate').textContent = 'SD ' + stardate;
+
+  const days = ['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'];
+  const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  const dateStr = `${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+
+  if (document.getElementById('clockDate'))
+    document.getElementById('clockDate').textContent = dateStr;
+  if (document.getElementById('clockStardate'))
+    document.getElementById('clockStardate').textContent = 'STARDATE ' + stardate;
+
+  // Analog clock
+  drawAnalogClock(now);
+}
+
+function drawAnalogClock(now) {
+  const canvas = document.getElementById('clockCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const cx = 100, cy = 100, r = 90;
+  ctx.clearRect(0, 0, 200, 200);
+
+  // Face
+  ctx.strokeStyle = 'rgba(102, 136, 204, 0.3)';
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
+
+  // Hour markers
+  for (let i = 0; i < 12; i++) {
+    const angle = (Math.PI * 2 / 12) * i - Math.PI / 2;
+    const inner = i % 3 === 0 ? r - 15 : r - 10;
+    ctx.strokeStyle = i % 3 === 0 ? '#99ccff' : 'rgba(102, 136, 204, 0.4)';
+    ctx.lineWidth = i % 3 === 0 ? 3 : 1;
+    ctx.beginPath();
+    ctx.moveTo(cx + Math.cos(angle) * inner, cy + Math.sin(angle) * inner);
+    ctx.lineTo(cx + Math.cos(angle) * (r - 2), cy + Math.sin(angle) * (r - 2));
+    ctx.stroke();
+  }
+
+  // Hour hand
+  const hr = (now.getHours() % 12 + now.getMinutes() / 60) * (Math.PI * 2 / 12) - Math.PI / 2;
+  ctx.strokeStyle = '#99ccff';
+  ctx.lineWidth = 4;
+  ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.cos(hr) * 50, cy + Math.sin(hr) * 50); ctx.stroke();
+
+  // Minute hand
+  const mn = (now.getMinutes() + now.getSeconds() / 60) * (Math.PI * 2 / 60) - Math.PI / 2;
+  ctx.strokeStyle = '#66cccc';
+  ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.cos(mn) * 70, cy + Math.sin(mn) * 70); ctx.stroke();
+
+  // Second hand
+  const sc = now.getSeconds() * (Math.PI * 2 / 60) - Math.PI / 2;
+  ctx.strokeStyle = '#ff9900';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.cos(sc) * 80, cy + Math.sin(sc) * 80); ctx.stroke();
+
+  // Center
+  ctx.fillStyle = '#99ccff';
+  ctx.beginPath(); ctx.arc(cx, cy, 4, 0, Math.PI * 2); ctx.fill();
+}
+
+// === CALCULATOR ===
+let calcExpression = '';
+function calcInput(val) {
+  playClick();
+  calcExpression += val;
+  document.getElementById('calcDisplay').textContent = calcExpression || '0';
+}
+function calcClear() {
+  playClick();
+  calcExpression = '';
+  document.getElementById('calcDisplay').textContent = '0';
+}
+function calcEquals() {
+  playBeep();
+  try {
+    const result = Function('"use strict"; return (' + calcExpression + ')')();
+    document.getElementById('calcDisplay').textContent = result;
+    calcExpression = String(result);
+  } catch {
+    document.getElementById('calcDisplay').textContent = 'ERROR';
+    calcExpression = '';
+  }
+}
+
+// === FILE BROWSER ===
+const fileSystem = {
+  '/lcars/database/': [
+    { name: 'crew_manifest/', type: 'folder', size: '—', date: 'SD 79102.4' },
+    { name: 'mission_logs/', type: 'folder', size: '—', date: 'SD 79145.1' },
+    { name: 'stellar_charts/', type: 'folder', size: '—', date: 'SD 79088.7' },
+    { name: 'engineering/', type: 'folder', size: '—', date: 'SD 79134.2' },
+    { name: 'medical_records/', type: 'folder', size: '—', date: 'SD 79140.9' },
+    { name: 'astrometrics_data/', type: 'folder', size: '—', date: 'SD 79143.6' },
+    { name: 'warp_field_analysis.dat', type: 'file', size: '2.4 TB', date: 'SD 79144.3' },
+    { name: 'systems_diagnostic.log', type: 'file', size: '847 MB', date: 'SD 79145.5' },
+    { name: 'holodeck_programs.idx', type: 'file', size: '12.8 TB', date: 'SD 79139.1' },
+  ],
+  '/lcars/database/crew_manifest/': [
+    { name: '..', type: 'up', size: '—', date: '—' },
+    { name: 'janeway_k.bio', type: 'file', size: '4.2 MB', date: 'SD 79100.1' },
+    { name: 'chakotay.bio', type: 'file', size: '3.8 MB', date: 'SD 79100.1' },
+    { name: 'tuvok.bio', type: 'file', size: '3.5 MB', date: 'SD 79100.1' },
+    { name: 'torres_b.bio', type: 'file', size: '4.0 MB', date: 'SD 79100.1' },
+    { name: 'paris_t.bio', type: 'file', size: '3.9 MB', date: 'SD 79100.1' },
+    { name: 'kim_h.bio', type: 'file', size: '3.4 MB', date: 'SD 79100.1' },
+    { name: 'emh_mark1.prog', type: 'file', size: '52.7 GB', date: 'SD 79102.4' },
+    { name: 'seven_of_nine.bio', type: 'file', size: '8.1 MB', date: 'SD 79100.1' },
+    { name: 'neelix.bio', type: 'file', size: '3.6 MB', date: 'SD 79090.5' },
+  ],
+  '/lcars/database/mission_logs/': [
+    { name: '..', type: 'up', size: '—', date: '—' },
+    { name: 'caretaker_array.log', type: 'file', size: '127 MB', date: 'SD 48315.6' },
+    { name: 'borg_encounters.log', type: 'file', size: '2.1 GB', date: 'SD 79088.2' },
+    { name: 'species_8472.log', type: 'file', size: '890 MB', date: 'SD 51003.7' },
+    { name: 'temporal_incidents.log', type: 'file', size: '445 MB', date: 'SD 79132.1' },
+    { name: 'first_contacts.log', type: 'file', size: '1.8 GB', date: 'SD 79141.0' },
+  ]
+};
+
+let currentPath = '/lcars/database/';
+
+function renderFiles() {
+  const list = document.getElementById('fileList');
+  const pathEl = document.getElementById('filePath');
+  pathEl.textContent = currentPath;
+  list.innerHTML = '';
+
+  const files = fileSystem[currentPath] || [];
+  files.forEach(f => {
+    const div = document.createElement('div');
+    div.className = 'file-item';
+    div.onclick = () => {
+      playClick();
+      if (f.type === 'folder') {
+        currentPath += f.name;
+        renderFiles();
+      } else if (f.type === 'up') {
+        const parts = currentPath.split('/').filter(Boolean);
+        parts.pop();
+        currentPath = '/' + parts.join('/') + '/';
+        renderFiles();
+      }
+    };
+
+    let icon = '📄';
+    if (f.type === 'folder') icon = '📁';
+    else if (f.type === 'up') icon = '⬆️';
+    else if (f.name.endsWith('.bio')) icon = '👤';
+    else if (f.name.endsWith('.log')) icon = '📋';
+    else if (f.name.endsWith('.dat')) icon = '💾';
+    else if (f.name.endsWith('.prog')) icon = '🖥️';
+    else if (f.name.endsWith('.idx')) icon = '🎭';
+
+    div.innerHTML = `
+      <span class="file-icon">${icon}</span>
+      <span class="file-name">${f.name}</span>
+      <span class="file-size">${f.size}</span>
+      <span class="file-date">${f.date}</span>
+    `;
+    list.appendChild(div);
+  });
+}
+
+// === NOTEPAD ===
+function insertLogDate() {
+  playClick();
+  const now = new Date();
+  const elapsed = (now - new Date('2000-01-01')) / (1000 * 60 * 60 * 24 * 365.25);
+  const stardate = (41000 + elapsed * 1000).toFixed(1);
+  const area = document.getElementById('notepadArea');
+  area.value += `\nCaptain's Log, Stardate ${stardate}.\n`;
+  updateNotepadStatus();
+}
+
+function clearLog() {
+  playClick();
+  document.getElementById('notepadArea').value = '';
+  updateNotepadStatus();
+}
+
+function saveLog() {
+  playBeep();
+  document.getElementById('notepadStatus').textContent = '✓ Log entry saved to ship\'s database.';
+  setTimeout(() => updateNotepadStatus(), 3000);
+}
+
+function updateNotepadStatus() {
+  const chars = document.getElementById('notepadArea').value.length;
+  document.getElementById('notepadStatus').textContent = `Ready — ${chars} characters`;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const area = document.getElementById('notepadArea');
+  if (area) area.addEventListener('input', updateNotepadStatus);
+});
+
+// === ALERTS ===
+let alertTimeout = null;
+function triggerAlert(type) {
+  playAlert(type);
+  const bar = document.getElementById('alertBar');
+  const footer = document.getElementById('footerAlert');
+
+  if (type === 'clear') {
+    bar.classList.remove('show');
+    footer.textContent = 'ALL CLEAR';
+    footer.style.color = '';
+    document.getElementById('footerStatus').textContent = 'LCARS INTERFACE ACTIVE — ALL SYSTEMS NOMINAL';
+    return;
+  }
+
+  bar.className = 'alert-bar ' + type + ' show';
+  if (type === 'red') {
+    bar.textContent = '🔴 RED ALERT — ALL HANDS TO BATTLE STATIONS';
+    footer.textContent = 'RED ALERT';
+    footer.style.color = '#fff';
+    footer.parentElement.querySelector('[style*="blue"]') && (document.querySelector('.footer-bar .footer-segment:last-of-type').style.background = 'var(--lcars-red)');
+  } else if (type === 'yellow') {
+    bar.textContent = '🟡 YELLOW ALERT — INCREASED READINESS';
+    footer.textContent = 'YELLOW ALERT';
+    footer.style.color = '#000';
+  } else if (type === 'blue') {
+    bar.textContent = '🔵 BLUE ALERT — LANDING SEQUENCE INITIATED';
+    footer.textContent = 'BLUE ALERT';
+    footer.style.color = '#000';
+  }
+
+  document.getElementById('footerStatus').textContent = bar.textContent;
+
+  clearTimeout(alertTimeout);
+  alertTimeout = setTimeout(() => {
+    bar.classList.remove('show');
+  }, 8000);
+}
+
+// === THEMES ===
+function setTheme(theme) {
+  playClick();
+  const root = document.documentElement;
+  if (theme === 'tng') {
+    root.style.setProperty('--lcars-blue', '#cc99cc');
+    root.style.setProperty('--lcars-lightblue', '#ffcc99');
+    root.style.setProperty('--lcars-teal', '#cc6633');
+    root.style.setProperty('--lcars-purple', '#9999cc');
+  } else if (theme === 'dark') {
+    root.style.setProperty('--lcars-blue', '#334466');
+    root.style.setProperty('--lcars-lightblue', '#6688aa');
+    root.style.setProperty('--lcars-teal', '#336666');
+    root.style.setProperty('--lcars-purple', '#664488');
+    root.style.setProperty('--lcars-orange', '#996633');
+  } else {
+    root.style.setProperty('--lcars-blue', '#6688cc');
+    root.style.setProperty('--lcars-lightblue', '#99ccff');
+    root.style.setProperty('--lcars-teal', '#66cccc');
+    root.style.setProperty('--lcars-purple', '#cc77ff');
+    root.style.setProperty('--lcars-orange', '#ff9900');
+  }
+}
+
+// === SHIELD FLUCTUATIONS ===
+function updateShields() {
+  const shields = ['Fwd', 'Aft', 'Port', 'Stbd'];
+  shields.forEach(s => {
+    const val = 92 + Math.random() * 8;
+    const el = document.getElementById('shield' + s);
+    const bar = document.getElementById('shield' + s + 'Bar');
+    if (el) el.textContent = val.toFixed(0) + '%';
+    if (bar) bar.style.width = val + '%';
+  });
+}
+
+// === WEATHER SIMULATION ===
+function updateWeather() {
+  const temps = [68, 70, 72, 74, 71, 69, 73, 75];
+  const t = temps[Math.floor(Math.random() * temps.length)];
+  document.getElementById('weatherTemp').textContent = t + '°';
+  document.getElementById('weatherHumidity').textContent = (40 + Math.floor(Math.random() * 20)) + '%';
+  document.getElementById('weatherWind').textContent = (8 + Math.floor(Math.random() * 12)) + ' MPH';
+}
+
+// === MAIN LOOP ===
+function startSystems() {
+  initBgStarfield();
+  initStarfield3D();
+  renderFiles();
+
+  setInterval(updateSystems, 1000);
+  setInterval(updateClock, 1000);
+  setInterval(updateShields, 3000);
+  setInterval(updateWeather, 30000);
+
+  updateSystems();
+  updateClock();
+  updateShields();
+
+  // Render loop
+  function animate() {
+    drawBgStarfield();
+    drawSensor();
+    drawAstrometrics();
+    requestAnimationFrame(animate);
+  }
+  animate();
+}
+
+// === KEYBOARD ===
+document.addEventListener('keydown', (e) => {
+  if (e.key === '1') switchPanel('ops');
+  else if (e.key === '2') switchPanel('tactical');
+  else if (e.key === '3') switchPanel('science');
+  else if (e.key === '4') switchPanel('comms');
+  else if (e.key === '5') switchPanel('computer');
+  else if (e.key === '6') switchPanel('files');
+  else if (e.key === '7') switchPanel('notepad');
+  else if (e.key === '8') switchPanel('settings');
+});
+
+// === RESIZE ===
+window.addEventListener('resize', () => {
+  const canvas = document.getElementById('starfield');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  initBgStarfield();
+});
+
+// === START BOOT ===
+runBoot();
+</script>
+</body>
+</html>
