@@ -274,6 +274,21 @@ fn load_tasks() -> Result<String, String> {
     if path.exists() { std::fs::read_to_string(&path).map_err(|e| format!("Cannot load tasks: {}", e)) } else { Ok("[]".to_string()) }
 }
 
+#[tauri::command]
+fn save_log(data: String) -> Result<(), String> {
+    let home = dirs::home_dir().ok_or("No home directory")?;
+    let path = home.join(".lcars-os-captains-log.json");
+    std::fs::write(&path, &data).map_err(|e| format!("Cannot save log: {}", e))?;
+    Ok(())
+}
+
+#[tauri::command]
+fn load_log() -> Result<String, String> {
+    let home = dirs::home_dir().ok_or("No home directory")?;
+    let path = home.join(".lcars-os-captains-log.json");
+    if path.exists() { std::fs::read_to_string(&path).map_err(|e| format!("Cannot load log: {}", e)) } else { Ok("[]".to_string()) }
+}
+
 fn main() {
     let sys = System::new_all();
     tauri::Builder::default()
@@ -281,7 +296,7 @@ fn main() {
         .manage(AppState { sys: Mutex::new(sys), comms_cache: Mutex::new(None) })
         .invoke_handler(tauri::generate_handler![
             get_system_metrics, list_directory, open_file, get_home_dir,
-            get_comms_status, launch_app, save_tasks, load_tasks
+            get_comms_status, launch_app, save_tasks, load_tasks, save_log, load_log
         ])
         .run(tauri::generate_context!())
         .expect("error while running LCARS OS");

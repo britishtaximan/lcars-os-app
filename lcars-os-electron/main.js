@@ -18,7 +18,12 @@ var cachedCommsTime = 0;
 var COMMS_CACHE_MS = 30000;
 
 // Path to the shared Rust metrics binary
-var metricsPath = path.join(__dirname, '..', 'lcars-metrics', 'target', 'release', 'lcars-metrics');
+var metricsPath;
+if (app.isPackaged) {
+  metricsPath = path.join(path.dirname(app.getAppPath()), '..', 'lcars-metrics');
+} else {
+  metricsPath = path.join(__dirname, '..', 'lcars-metrics', 'target', 'release', 'lcars-metrics');
+}
 
 // === Async shell command helper (non-blocking) ===
 function execAsync(command, timeout) {
@@ -148,6 +153,7 @@ ipcMain.handle('launch_app', async function(event, args) {
 
 // === Task Persistence ===
 var tasksPath = path.join(os.homedir(), '.lcars-os-tasks.json');
+var logPath = path.join(os.homedir(), '.lcars-os-captains-log.json');
 
 ipcMain.handle('save_tasks', async function(event, args) {
   try {
@@ -161,6 +167,25 @@ ipcMain.handle('load_tasks', async function() {
   try {
     if (fs.existsSync(tasksPath)) {
       return fs.readFileSync(tasksPath, 'utf8');
+    }
+    return '[]';
+  } catch(e) {
+    return '[]';
+  }
+});
+
+ipcMain.handle('save_log', async function(event, args) {
+  try {
+    fs.writeFileSync(logPath, (args && args.data) ? args.data : '[]', 'utf8');
+  } catch(e) {
+    throw new Error('Cannot save log: ' + e.message);
+  }
+});
+
+ipcMain.handle('load_log', async function() {
+  try {
+    if (fs.existsSync(logPath)) {
+      return fs.readFileSync(logPath, 'utf8');
     }
     return '[]';
   } catch(e) {

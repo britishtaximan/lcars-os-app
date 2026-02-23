@@ -26,6 +26,10 @@
       {
         "from": "../index.html",
         "to": "index.html"
+      },
+      {
+        "from": "../lcars-metrics/target/release/lcars-metrics",
+        "to": "lcars-metrics"
       }
     ],
     "mac": {
