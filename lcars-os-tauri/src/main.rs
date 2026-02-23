@@ -289,14 +289,220 @@ fn load_log() -> Result<String, String> {
     if path.exists() { std::fs::read_to_string(&path).map_err(|e| format!("Cannot load log: {}", e)) } else { Ok("[]".to_string()) }
 }
 
+#[tauri::command]
+fn purge_memory() -> Result<String, String> {
+    // Use osascript to request admin privileges and run purge
+    let output = std::process::Command::new("osascript")
+        .arg("-e")
+        .arg("do shell script \"purge\" with administrator privileges")
+        .output()
+        .map_err(|e| format!("Failed to execute: {}", e))?;
+
+    if output.status.success() {
+        Ok("Memory purged successfully".to_string())
+    } else {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        Err(format!("Purge failed: {}", stderr))
+    }
+}
+
+#[tauri::command]
+async fn start_dictation(duration_secs: u64, session_id: String) -> Result<String, String> {
+    let duration = duration_secs;
+    let sid = session_id;
+
+    let result = tauri::async_runtime::spawn_blocking(move || {
+        let home = dirs::home_dir().unwrap_or_else(|| std::path::PathBuf::from("/tmp"));
+        let helper_dir = home.join(".lcars-os");
+        let app_bundle = helper_dir.join("LCARSDictation.app");
+        let contents_dir = app_bundle.join("Contents");
+        let macos_dir = contents_dir.join("MacOS");
+        let binary_path = macos_dir.join("LCARSDictation");
+        let plist_path = contents_dir.join("Info.plist");
+        let source_path = helper_dir.join("dictation_helper.swift");
+
+        // Session-specific file paths — each dictation gets its own files
+        // Swift helper appends .err/.partial/.stop to the output path
+        let result_path = helper_dir.join(format!("dictation_{}.txt", sid));
+        let error_path = helper_dir.join(format!("dictation_{}.txt.err", sid));
+        let partial_path = helper_dir.join(format!("dictation_{}.txt.partial", sid));
+        let stop_path = helper_dir.join(format!("dictation_{}.txt.stop", sid));
+
+        // Clean this session's files
+        let _ = std::fs::remove_file(&result_path);
+        let _ = std::fs::remove_file(&error_path);
+        let _ = std::fs::remove_file(&partial_path);
+        let _ = std::fs::remove_file(&stop_path);
+
+        // Ensure all directories exist
+        let _ = std::fs::create_dir_all(&macos_dir);
+
+        // Write the Swift source (always update to latest version)
+        let swift_source = include_str!("../helpers/dictation_helper.swift");
+        let _ = std::fs::write(&source_path, swift_source);
+
+        // Write the Info.plist
+        let info_plist = r#"<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleIdentifier</key>
+    <string>com.lcars.os.dictation</string>
+    <key>CFBundleName</key>
+    <string>LCARS Dictation</string>
+    <key>CFBundleExecutable</key>
+    <string>LCARSDictation</string>
+    <key>CFBundleVersion</key>
+    <string>1.0</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>LSUIElement</key>
+    <true/>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>LCARS OS needs microphone access for Captain's Log voice dictation.</string>
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>LCARS OS uses on-device speech recognition to transcribe your Captain's Log entries.</string>
+</dict>
+</plist>"#;
+        let _ = std::fs::write(&plist_path, info_plist);
+
+        // Compile if binary doesn't exist or source is newer
+        let needs_compile = if binary_path.exists() {
+            let src_mod = std::fs::metadata(&source_path).and_then(|m| m.modified()).unwrap_or(std::time::SystemTime::UNIX_EPOCH);
+            let bin_mod = std::fs::metadata(&binary_path).and_then(|m| m.modified()).unwrap_or(std::time::SystemTime::UNIX_EPOCH);
+            src_mod > bin_mod
+        } else {
+            true
+        };
+
+        if needs_compile {
+            let _ = std::fs::remove_file(&binary_path);
+            let compile = std::process::Command::new("swiftc")
+                .arg(&source_path)
+                .arg("-o")
+                .arg(&binary_path)
+                .arg("-framework").arg("Cocoa")
+                .arg("-framework").arg("Speech")
+                .arg("-framework").arg("AVFoundation")
+                .output()
+                .map_err(|e| format!("Failed to compile dictation helper: {}", e))?;
+
+            if !compile.status.success() {
+                let err = String::from_utf8_lossy(&compile.stderr);
+                return Err(format!("Compile error: {}", err));
+            }
+        }
+
+        // Register the .app bundle with LaunchServices
+        let _ = std::process::Command::new("/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister")
+            .arg("-f")
+            .arg(&app_bundle)
+            .output();
+
+        // Kill any stale LCARSDictation process from a previous session
+        let _ = std::process::Command::new("pkill").arg("-f").arg("LCARSDictation").output();
+        std::thread::sleep(std::time::Duration::from_millis(200));
+
+        // Write config file for Swift helper (more reliable than --args with 'open')
+        let config_path = helper_dir.join("dictation_config.txt");
+        let config = format!("{}\n{}", duration, result_path.to_string_lossy());
+        std::fs::write(&config_path, &config).map_err(|e| format!("Failed to write config: {}", e))?;
+
+        // Launch via 'open -n -W' (-n forces new instance)
+        let output = std::process::Command::new("open")
+            .arg("-n")
+            .arg("-W")
+            .arg(&app_bundle)
+            .output()
+            .map_err(|e| format!("Failed to launch dictation app: {}", e))?;
+
+        std::thread::sleep(std::time::Duration::from_millis(500));
+
+        if result_path.exists() {
+            let text = std::fs::read_to_string(&result_path)
+                .map_err(|e| format!("Failed to read result: {}", e))?;
+            let _ = std::fs::remove_file(&result_path);
+            let _ = std::fs::remove_file(&partial_path);
+            let _ = std::fs::remove_file(&stop_path);
+            Ok(text.trim().to_string())
+        } else if error_path.exists() {
+            let err = std::fs::read_to_string(&error_path).unwrap_or_else(|_| "Unknown error".to_string());
+            let _ = std::fs::remove_file(&error_path);
+            Err(err)
+        } else {
+            let stderr_text = String::from_utf8_lossy(&output.stderr).to_string();
+            if !stderr_text.is_empty() {
+                Err(format!("Dictation failed: {}", stderr_text))
+            } else {
+                Err("Dictation timed out — no speech detected or permissions denied".to_string())
+            }
+        }
+    }).await.map_err(|e| format!("Thread error: {}", e))?;
+
+    result
+}
+
+#[tauri::command]
+fn poll_dictation(session_id: String) -> Result<String, String> {
+    let home = dirs::home_dir().ok_or("No home directory")?;
+    let helper_dir = home.join(".lcars-os");
+    let result_path = helper_dir.join(format!("dictation_{}.txt", session_id));
+    let partial_path = helper_dir.join(format!("dictation_{}.txt.partial", session_id));
+    let error_path = helper_dir.join(format!("dictation_{}.txt.err", session_id));
+
+    if result_path.exists() {
+        let text = std::fs::read_to_string(&result_path).unwrap_or_default();
+        return Ok(format!("FINAL:{}", text.trim()));
+    }
+    if error_path.exists() {
+        let err = std::fs::read_to_string(&error_path).unwrap_or_default();
+        return Err(err);
+    }
+    if partial_path.exists() {
+        let text = std::fs::read_to_string(&partial_path).unwrap_or_default();
+        return Ok(format!("PARTIAL:{}", text.trim()));
+    }
+    Ok("WAITING".to_string())
+}
+
+#[tauri::command]
+fn stop_dictation(session_id: String) -> Result<(), String> {
+    let home = dirs::home_dir().ok_or("No home directory")?;
+    let stop_path = home.join(".lcars-os").join(format!("dictation_{}.txt.stop", session_id));
+    std::fs::write(&stop_path, "stop").map_err(|e| format!("Failed to signal stop: {}", e))?;
+    Ok(())
+}
+
+fn cleanup_dictation_files() {
+    if let Some(home) = dirs::home_dir() {
+        let helper_dir = home.join(".lcars-os");
+        if let Ok(entries) = std::fs::read_dir(&helper_dir) {
+            for entry in entries.flatten() {
+                if let Some(name) = entry.file_name().to_str() {
+                    // Only delete session data files (dictation_<hex>.txt*), not helper/config
+                    if name.starts_with("dictation_") && name != "dictation_helper.swift" && name != "dictation_config.txt" {
+                        let _ = std::fs::remove_file(entry.path());
+                    }
+                }
+            }
+        }
+    }
+}
+
 fn main() {
+    // Clean up stale dictation files from previous sessions/crashes
+    cleanup_dictation_files();
+
     let sys = System::new_all();
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .manage(AppState { sys: Mutex::new(sys), comms_cache: Mutex::new(None) })
         .invoke_handler(tauri::generate_handler![
             get_system_metrics, list_directory, open_file, get_home_dir,
-            get_comms_status, launch_app, save_tasks, load_tasks, save_log, load_log
+            get_comms_status, launch_app, save_tasks, load_tasks, save_log, load_log, purge_memory,
+            start_dictation, poll_dictation, stop_dictation
         ])
         .run(tauri::generate_context!())
         .expect("error while running LCARS OS");

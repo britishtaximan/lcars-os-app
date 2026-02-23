@@ -34,34 +34,37 @@
     --lcars-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { background:radial-gradient(1200px 600px at 55% 35%,rgba(47,120,255,.12),transparent 55%),radial-gradient(900px 500px at 20% 55%,rgba(208,107,18,.08),transparent 55%),var(--lcars-bg); color:var(--lcars-text); font-family:var(--lcars-font); overflow:hidden; height:100vh; width:100vw; cursor:default; user-select:none; }
+  body { background:url('hubble-bg.png') center center / cover no-repeat fixed; color:var(--lcars-text); font-family:var(--lcars-font); overflow:hidden; height:100vh; width:100vw; cursor:default; user-select:none; }
+  body::before { content:''; position:fixed; inset:0; background:rgba(5,7,10,0.35); z-index:0; pointer-events:none; }
+  .lcars-frame { position:relative; z-index:1; }
   .lcars-frame { display:grid; grid-template-columns:var(--lcars-sidebar-w) 1fr; grid-template-rows:var(--lcars-header-h) 1fr var(--lcars-footer-h); height:100vh; width:100vw; gap:4px; padding:6px; }
   .lcars-sidebar { grid-row:1/4; display:flex; flex-direction:column; gap:4px; }
-  .sidebar-top { background:linear-gradient(180deg,var(--lcars-blue),rgba(47,120,255,.7)); height:100px; border-radius:var(--lcars-radius) 0 var(--lcars-radius) 0; display:flex; align-items:flex-end; justify-content:flex-end; padding:10px 14px; font-size:13px; color:rgba(255,255,255,.9); font-weight:700; letter-spacing:2px; box-shadow:var(--lcars-glow); }
+  .sidebar-top { background:linear-gradient(180deg,rgba(47,120,255,.55),rgba(47,120,255,.35)); height:100px; border-radius:var(--lcars-radius) 0 var(--lcars-radius) 0; display:flex; align-items:flex-end; justify-content:flex-end; padding:10px 14px; font-size:13px; color:rgba(255,255,255,.9); font-weight:700; letter-spacing:2px; box-shadow:var(--lcars-glow); }
   .sidebar-buttons { display:flex; flex-direction:column; gap:4px; flex:1; padding:2px 0; }
-  .sidebar-btn { padding:8px 12px; font-family:var(--lcars-font); font-size:15px; font-weight:700; letter-spacing:1px; text-transform:uppercase; text-align:right; border:none; cursor:pointer; color:rgba(0,0,0,.85); transition:all 0.2s ease; min-height:38px; display:flex; align-items:center; justify-content:flex-end; border-radius:0 999px 999px 0; box-shadow:0 0 0 1px rgba(0,0,0,.25) inset; }
+  .sidebar-btn { padding:8px 12px; font-family:var(--lcars-font); font-size:15px; font-weight:700; letter-spacing:1px; text-transform:uppercase; text-align:right; border:none; cursor:pointer; color:rgba(0,0,0,.85); transition:all 0.2s ease; min-height:38px; display:flex; align-items:center; justify-content:flex-end; border-radius:0 999px 999px 0; box-shadow:0 0 0 1px rgba(0,0,0,.25) inset; opacity:0.65; }
   .sidebar-btn:hover { filter:brightness(1.25); transform:translateX(3px); }
   .sidebar-btn:active { filter:brightness(0.85); }
-  .sidebar-btn.active { filter:brightness(1.3); box-shadow:0 0 0 1px rgba(0,0,0,.25) inset, 0 0 12px rgba(255,255,255,.15); }
+  .sidebar-btn.active { filter:brightness(1.3); box-shadow:0 0 0 1px rgba(0,0,0,.25) inset, 0 0 12px rgba(255,255,255,.15); opacity:0.85; }
   .sidebar-top, .header-bar { -webkit-app-region: drag; }
   .sidebar-btn, .header-segment { -webkit-app-region: no-drag; }
-  .sidebar-bottom { background:linear-gradient(180deg,rgba(138,109,255,.7),var(--lcars-purple)); height:70px; border-radius:0 var(--lcars-radius) 0 var(--lcars-radius); display:flex; align-items:flex-start; justify-content:flex-end; padding:10px 14px; font-size:11px; color:rgba(255,255,255,.85); font-weight:700; letter-spacing:2px; box-shadow:var(--lcars-glow); }
+  .sidebar-bottom { background:linear-gradient(180deg,rgba(138,109,255,.35),rgba(138,109,255,.4)); height:70px; border-radius:0 var(--lcars-radius) 0 var(--lcars-radius); display:flex; align-items:flex-start; justify-content:flex-end; padding:10px 14px; font-size:11px; color:rgba(255,255,255,.85); font-weight:700; letter-spacing:2px; box-shadow:var(--lcars-glow); }
   .lcars-header { display:flex; align-items:stretch; gap:4px; }
-  .header-elbow { background:linear-gradient(135deg,var(--lcars-gold),rgba(184,137,16,.7)); width:140px; border-radius:0 0 0 var(--lcars-radius); position:relative; box-shadow:0 0 0 1px rgba(0,0,0,.25) inset; }
+  .header-elbow { background:linear-gradient(135deg,rgba(184,137,16,.5),rgba(184,137,16,.3)); width:140px; border-radius:0 0 0 var(--lcars-radius); position:relative; box-shadow:0 0 0 1px rgba(0,0,0,.25) inset; }
   .header-elbow::after { content:''; position:absolute; bottom:0; right:-24px; width:24px; height:100%; background:transparent; border-radius:0 var(--lcars-radius) 0 0; }
   .header-bar { flex:1; display:flex; align-items:stretch; gap:4px; }
-  .header-segment { flex:1; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; letter-spacing:2px; color:rgba(0,0,0,.85); text-transform:uppercase; border-radius:999px; box-shadow:0 0 0 1px rgba(0,0,0,.25) inset; font-family:var(--lcars-mono); }
+  .header-segment { flex:1; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; letter-spacing:2px; color:rgba(0,0,0,.85); text-transform:uppercase; border-radius:999px; box-shadow:0 0 0 1px rgba(0,0,0,.25) inset; font-family:var(--lcars-mono); opacity:0.6; }
   .header-title { flex:3; display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:700; letter-spacing:6px; color:var(--lcars-lightblue); text-transform:uppercase; background:transparent; text-shadow:0 0 20px rgba(207,232,255,.25); }
-  .lcars-content { background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,0)); border:1px solid var(--lcars-line); border-radius:var(--lcars-radius); overflow:hidden; position:relative; box-shadow:var(--lcars-glow); }
+  .lcars-content { background:rgba(5,7,10,0.25); border:1px solid rgba(255,255,255,.06); border-radius:var(--lcars-radius); overflow:hidden; position:relative; box-shadow:var(--lcars-glow); backdrop-filter:blur(2px); -webkit-backdrop-filter:blur(2px); }
   .lcars-footer { display:flex; align-items:stretch; gap:4px; }
-  .footer-elbow { background:linear-gradient(135deg,rgba(138,109,255,.7),var(--lcars-purple)); width:140px; border-radius:var(--lcars-radius) 0 0 0; box-shadow:0 0 0 1px rgba(0,0,0,.25) inset; }
+  .footer-elbow { background:linear-gradient(135deg,rgba(138,109,255,.35),rgba(138,109,255,.4)); width:140px; border-radius:var(--lcars-radius) 0 0 0; box-shadow:0 0 0 1px rgba(0,0,0,.25) inset; }
   .footer-bar { flex:1; display:flex; align-items:stretch; gap:4px; }
-  .footer-segment { flex:1; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; letter-spacing:1px; color:rgba(0,0,0,.85); border-radius:999px; box-shadow:0 0 0 1px rgba(0,0,0,.25) inset; font-family:var(--lcars-mono); }
+  .footer-segment { flex:1; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; letter-spacing:1px; color:rgba(0,0,0,.85); border-radius:999px; box-shadow:0 0 0 1px rgba(0,0,0,.25) inset; font-family:var(--lcars-mono); opacity:0.6; }
   .footer-status { flex:4; display:flex; align-items:center; padding:0 20px; font-size:13px; letter-spacing:2px; color:var(--lcars-teal); background:transparent; font-family:var(--lcars-mono); }
   .panel-container { width:100%; height:100%; display:none; padding:16px; overflow-y:auto; }
   .panel-container.active { display:block; }
+  .panel-container { zoom:1.45; }
   .panel-grid { display:grid; gap:14px; }
-  .panel { background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01)); border:1px solid var(--lcars-line); border-radius:22px; padding:16px; position:relative; overflow:hidden; box-shadow:var(--lcars-glow); }
+  .panel { background:rgba(11,15,20,0.3); border:1px solid rgba(255,255,255,.06); border-radius:22px; padding:16px; position:relative; overflow:hidden; box-shadow:var(--lcars-glow); backdrop-filter:blur(2px); -webkit-backdrop-filter:blur(2px); }
   .panel::before { content:''; position:absolute; top:0; left:0; width:5px; height:100%; border-radius:22px 0 0 22px; }
   .panel::after { content:''; position:absolute; inset:0; background:linear-gradient(90deg,rgba(255,255,255,.06),transparent 40%),linear-gradient(180deg,rgba(255,255,255,.04),transparent 55%); opacity:.5; pointer-events:none; border-radius:22px; }
   .panel-header { font-size:12px; font-weight:700; letter-spacing:2px; text-transform:uppercase; margin-bottom:12px; padding-left:12px; font-family:var(--lcars-mono); }
@@ -77,17 +80,17 @@
   .status-label { font-size:11px; letter-spacing:2px; color:var(--lcars-muted); text-transform:uppercase; font-family:var(--lcars-mono); }
   .status-value { font-size:28px; font-weight:700; color:var(--lcars-lightblue); line-height:1; }
   .status-bar-track { height:10px; background:rgba(255,255,255,.06); border-radius:999px; overflow:hidden; margin-top:4px; box-shadow:0 0 0 1px rgba(255,255,255,.06) inset; }
-  .status-bar-fill { height:100%; border-radius:999px; transition:width 1s ease; opacity:.9; }
+  .status-bar-fill { height:100%; border-radius:999px; transition:width 1s ease; opacity:.6; }
   .graph-canvas { width:100%; height:120px; display:block; }
   .sensor-canvas { width:240px; height:240px; }
-  .calc-display { background:rgba(0,0,0,0.5); border:1px solid var(--lcars-line); border-radius:12px; padding:12px 16px; text-align:right; font-size:32px; font-weight:700; color:var(--lcars-lightblue); margin-bottom:12px; min-height:54px; overflow:hidden; font-family:var(--lcars-mono); letter-spacing:2px; box-shadow:0 0 0 1px rgba(255,255,255,.06) inset; }
+  .calc-display { background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,.06); border-radius:12px; padding:12px 16px; text-align:right; font-size:32px; font-weight:700; color:var(--lcars-lightblue); margin-bottom:12px; min-height:54px; overflow:hidden; font-family:var(--lcars-mono); letter-spacing:2px; box-shadow:0 0 0 1px rgba(255,255,255,.06) inset; }
   .calc-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:5px; }
-  .calc-btn { padding:14px 8px; font-family:var(--lcars-font); font-size:18px; font-weight:700; border:none; border-radius:12px; cursor:pointer; color:rgba(0,0,0,.85); transition:all 0.15s; letter-spacing:1px; box-shadow:0 0 0 1px rgba(0,0,0,.2) inset; }
+  .calc-btn { padding:14px 8px; font-family:var(--lcars-font); font-size:18px; font-weight:700; border:none; border-radius:12px; cursor:pointer; color:rgba(0,0,0,.85); transition:all 0.15s; letter-spacing:1px; box-shadow:0 0 0 1px rgba(0,0,0,.2) inset; opacity:0.7; }
   .calc-btn:hover { filter:brightness(1.25); transform:scale(1.03); } .calc-btn:active { filter:brightness(0.7); transform:scale(0.97); }
   .calc-btn.num { background:var(--lcars-blue); } .calc-btn.op { background:var(--lcars-orange); }
   .calc-btn.fn { background:var(--lcars-teal); } .calc-btn.eq { background:var(--lcars-gold); }
   .calc-btn.clear { background:var(--lcars-red); color:#fff; }
-  .file-path-bar { display:flex; align-items:center; gap:6px; padding:8px 12px; background:rgba(12,26,37,.85); border:1px solid var(--lcars-line); border-radius:999px; margin-bottom:12px; font-size:13px; color:var(--lcars-lightblue); letter-spacing:1px; font-family:var(--lcars-mono); box-shadow:0 0 0 1px rgba(255,255,255,.06) inset; }
+  .file-path-bar { display:flex; align-items:center; gap:6px; padding:8px 12px; background:rgba(12,26,37,.4); border:1px solid var(--lcars-line); border-radius:999px; margin-bottom:12px; font-size:13px; color:var(--lcars-lightblue); letter-spacing:1px; font-family:var(--lcars-mono); box-shadow:0 0 0 1px rgba(255,255,255,.06) inset; }
   .file-list { display:flex; flex-direction:column; gap:3px; }
   .file-item { display:flex; align-items:center; gap:12px; padding:10px 14px; background:rgba(255,255,255,.03); border-radius:12px; cursor:pointer; transition:all 0.15s; border:1px solid transparent; }
   .file-item:hover { background:rgba(47,120,255,.1); border-color:var(--lcars-line); }
@@ -142,6 +145,9 @@
   .city-result:hover { background:rgba(47,120,255,.1); border-color:var(--lcars-line); }
   ::-webkit-scrollbar { width:6px; } ::-webkit-scrollbar-track { background:rgba(0,0,0,0.2); border-radius:3px; } ::-webkit-scrollbar-thumb { background:rgba(47,120,255,.4); border-radius:3px; } ::-webkit-scrollbar-thumb:hover { background:rgba(47,120,255,.6); }
   @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
+  @keyframes voicePulse { 0%,100%{box-shadow:0 0 4px rgba(255,60,60,.4);} 50%{box-shadow:0 0 18px rgba(255,60,60,.9);} }
+  .voice-recording { animation:voicePulse 1s ease-in-out infinite; background:var(--lcars-red)!important; }
+  .voice-recording #voiceDot { animation:pulse 0.6s ease-in-out infinite; background:#ff4444!important; }
   @keyframes scanline { 0%{transform:translateY(-100%);} 100%{transform:translateY(100vh);} }
   .scanline-overlay { position:fixed; top:0; left:0; width:100%; height:2px; background:linear-gradient(transparent,rgba(105,227,255,0.03),transparent); animation:scanline 10s linear infinite; pointer-events:none; z-index:1000; }
   .pulse { animation:pulse 2s ease-in-out infinite; }
@@ -213,6 +219,7 @@
     <div class="sidebar-top">LCARS 47.1</div>
     <div class="sidebar-buttons">
       <button class="sidebar-btn active" style="background:linear-gradient(90deg,var(--lcars-orange),rgba(208,107,18,.7));" onclick="switchPanel('ops')" id="btn-ops">Operations</button>
+      <button class="sidebar-btn" style="background:linear-gradient(90deg,var(--lcars-pink),rgba(204,102,153,.7));" onclick="switchPanel('tasks')" id="btn-tasks">Mission Tasks</button>
       <button class="sidebar-btn" style="background:linear-gradient(90deg,var(--lcars-teal),rgba(123,215,198,.7));" onclick="switchPanel('tactical')" id="btn-tactical">Tactical</button>
       <button class="sidebar-btn" style="background:linear-gradient(90deg,var(--lcars-blue),rgba(47,120,255,.7));" onclick="switchPanel('science')" id="btn-science">Science</button>
       <button class="sidebar-btn" style="background:linear-gradient(90deg,var(--lcars-gold),rgba(184,137,16,.7));" onclick="switchPanel('comms')" id="btn-comms">Comms</button>
@@ -240,7 +247,7 @@
     <div class="panel-container active" id="panel-ops">
       <div style="display:grid;grid-template-columns:160px 1fr 160px;gap:8px;height:100%;padding:6px;">
 
-        <!-- LEFT: Metrics + Clock/Weather -->
+        <!-- LEFT: Metrics -->
         <div style="display:flex;flex-direction:column;gap:4px;overflow-y:auto;">
           <div style="color:var(--lcars-blue);font-weight:700;font-size:10px;letter-spacing:2px;padding:2px 0;font-family:var(--lcars-mono);">SYSTEMS</div>
           <div class="status-item"><span class="status-label" style="font-size:9px;">CPU</span><span class="status-value" id="cpuValue" style="font-size:12px;">0%</span><div class="status-bar-track" style="height:6px;"><div class="status-bar-fill" id="cpuBar" style="width:0%;background:var(--lcars-blue);"></div></div></div>
@@ -253,39 +260,50 @@
           <div class="status-item"><span class="status-label" style="font-size:9px;">NET</span><span class="status-value" id="netValue" style="font-size:12px;">0 Mb/s</span><div class="status-bar-track" style="height:6px;"><div class="status-bar-fill" id="netBar" style="width:0%;background:var(--lcars-purple);"></div></div></div>
           <canvas class="graph-canvas" id="netGraph" style="height:30px;"></canvas>
           <div class="status-item"><span class="status-label" style="font-size:9px;">UP</span><span class="status-value" id="dashUptime" style="font-size:12px;">—</span></div>
-          <div style="border-top:1px solid var(--lcars-line);margin:4px 0;"></div>
-          <div id="dashTime" style="color:var(--lcars-gold);font-size:16px;font-weight:700;letter-spacing:1px;font-family:var(--lcars-mono);">00:00:00</div>
-          <div id="dashStardate" style="color:var(--lcars-teal);font-size:10px;letter-spacing:1px;font-family:var(--lcars-mono);">SD —</div>
-          <div style="margin-top:2px;"><span id="dashWeatherIcon" style="font-size:16px;">🌤</span> <span id="dashWeatherTemp" style="color:var(--lcars-orange);font-size:13px;font-weight:700;">—</span><div id="dashWeatherDesc" style="color:var(--lcars-muted);font-size:10px;">—</div></div>
+          <div id="purgeStatus" style="font-size:8px;color:var(--lcars-gold);font-family:var(--lcars-mono);letter-spacing:1px;margin-top:2px;"></div>
         </div>
 
-        <!-- CENTRE: Star Map -->
-        <div style="position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--lcars-line);">
-          <canvas id="opsStarMap" style="width:100%;height:100%;display:block;background:rgba(0,5,15,0.8);"></canvas>
-          <div style="position:absolute;bottom:6px;left:8px;font-size:9px;color:var(--lcars-muted);font-family:var(--lcars-mono);letter-spacing:1px;pointer-events:none;">STELLAR CARTOGRAPHY</div>
-        </div>
+        <!-- CENTRE: Empty — Hubble background shows through -->
+        <div></div>
 
-        <!-- RIGHT: Shields + Comms + Tasks -->
+        <!-- RIGHT: Mission Tasks + Log Entries -->
         <div style="display:flex;flex-direction:column;gap:4px;overflow-y:auto;">
-          <div style="color:var(--lcars-blue);font-weight:700;font-size:10px;letter-spacing:2px;padding:2px 0;font-family:var(--lcars-mono);">SHIELDS</div>
-          <div class="status-item"><span class="status-label" style="font-size:9px;">FWD</span><span class="status-value" id="dashShieldFwd" style="font-size:11px;">100%</span><div class="status-bar-track" style="height:6px;"><div class="status-bar-fill" id="dashShieldFwdBar" style="width:100%;background:var(--lcars-blue);"></div></div></div>
-          <div class="status-item"><span class="status-label" style="font-size:9px;">AFT</span><span class="status-value" id="dashShieldAft" style="font-size:11px;">100%</span><div class="status-bar-track" style="height:6px;"><div class="status-bar-fill" id="dashShieldAftBar" style="width:100%;background:var(--lcars-blue);"></div></div></div>
-          <div class="status-item"><span class="status-label" style="font-size:9px;">PORT</span><span class="status-value" id="dashShieldPort" style="font-size:11px;">100%</span><div class="status-bar-track" style="height:6px;"><div class="status-bar-fill" id="dashShieldPortBar" style="width:100%;background:var(--lcars-blue);"></div></div></div>
-          <div class="status-item"><span class="status-label" style="font-size:9px;">STBD</span><span class="status-value" id="dashShieldStbd" style="font-size:11px;">100%</span><div class="status-bar-track" style="height:6px;"><div class="status-bar-fill" id="dashShieldStbdBar" style="width:100%;background:var(--lcars-blue);"></div></div></div>
-          <div style="border-top:1px solid var(--lcars-line);margin:4px 0;"></div>
-          <div style="color:var(--lcars-teal);font-weight:700;font-size:10px;letter-spacing:2px;padding:2px 0;font-family:var(--lcars-mono);">COMMS</div>
-          <div style="font-size:10px;color:var(--lcars-lightblue);line-height:1.7;">
-            <div>📶 <span id="dashWifi">Scanning...</span></div>
-            <div>🔵 <span id="dashBluetooth">Scanning...</span></div>
-            <div>🔊 <span id="dashVolume">—</span></div>
-            <div>🔆 <span id="dashBrightness">—</span></div>
-          </div>
-          <div style="border-top:1px solid var(--lcars-line);margin:4px 0;"></div>
-          <div style="color:var(--lcars-pink);font-weight:700;font-size:10px;letter-spacing:2px;padding:2px 0;font-family:var(--lcars-mono);">MISSION</div>
+          <div style="color:var(--lcars-pink);font-weight:700;font-size:10px;letter-spacing:2px;padding:2px 0;font-family:var(--lcars-mono);">MISSION TASKS</div>
           <div id="dashTaskSummary" style="font-size:10px;color:var(--lcars-lightblue);line-height:1.5;">No tasks</div>
-          <div id="dashLatestLog" style="font-size:9px;color:var(--lcars-lavender);margin-top:2px;font-style:italic;overflow:hidden;max-height:36px;"></div>
+          <div style="color:var(--lcars-pink);font-weight:700;font-size:10px;letter-spacing:2px;padding:6px 0 2px 0;font-family:var(--lcars-mono);margin-top:4px;">LOG ENTRIES</div>
+          <div id="dashLatestLog" style="font-size:9px;color:var(--lcars-lavender);line-height:1.5;overflow-y:auto;max-height:100px;">No entries</div>
         </div>
 
+      </div>
+    </div>
+
+    <!-- MISSION TASKS -->
+    <div class="panel-container" id="panel-tasks">
+      <div class="panel-grid" style="grid-template-columns:1fr;">
+        <div class="panel pink">
+          <div class="panel-header">Mission Tasks</div>
+          <div class="panel-body">
+            <div class="task-input-row">
+              <input type="text" class="task-input" id="taskInput" placeholder="Enter new task..." onkeydown="if(event.key==='Enter')addTask()">
+              <select class="task-select" id="taskPriority">
+                <option value="medium">MEDIUM</option>
+                <option value="high">HIGH</option>
+                <option value="low">LOW</option>
+              </select>
+              <input type="date" class="task-date-input" id="taskDueDate" title="Due date (optional)">
+              <button class="task-add-btn" onclick="addTask()">ADD</button>
+            </div>
+            <div class="task-filters">
+              <button class="task-filter-btn active" onclick="setTaskFilter('all')" id="filterAll">ALL</button>
+              <button class="task-filter-btn" onclick="setTaskFilter('active')" id="filterActive">ACTIVE</button>
+              <button class="task-filter-btn" onclick="setTaskFilter('completed')" id="filterCompleted">DONE</button>
+              <button class="task-filter-btn" onclick="setTaskFilter('overdue')" id="filterOverdue" style="background:var(--lcars-red);color:#fff;">OVERDUE</button>
+              <button class="task-filter-btn" onclick="purgeCompleted()" style="background:var(--lcars-red);color:#fff;">PURGE</button>
+            </div>
+            <div id="taskList"></div>
+            <div class="task-stats" id="taskStats"></div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -461,42 +479,26 @@
       </div>
     </div>
 
-    <!-- LOG ENTRY / TASK LIST -->
+    <!-- CAPTAIN'S LOG -->
     <div class="panel-container" id="panel-notepad">
       <div class="panel-grid" style="grid-template-columns:1fr;">
-        <div class="panel pink">
-          <div class="panel-header">Mission Tasks</div>
-          <div class="panel-body">
-            <div class="task-input-row">
-              <input type="text" class="task-input" id="taskInput" placeholder="Enter new task..." onkeydown="if(event.key==='Enter')addTask()">
-              <select class="task-select" id="taskPriority">
-                <option value="medium">MEDIUM</option>
-                <option value="high">HIGH</option>
-                <option value="low">LOW</option>
-              </select>
-              <input type="date" class="task-date-input" id="taskDueDate" title="Due date (optional)">
-              <button class="task-add-btn" onclick="addTask()">ADD</button>
-            </div>
-            <div class="task-filters">
-              <button class="task-filter-btn active" onclick="setTaskFilter('all')" id="filterAll">ALL</button>
-              <button class="task-filter-btn" onclick="setTaskFilter('active')" id="filterActive">ACTIVE</button>
-              <button class="task-filter-btn" onclick="setTaskFilter('completed')" id="filterCompleted">DONE</button>
-              <button class="task-filter-btn" onclick="setTaskFilter('overdue')" id="filterOverdue" style="background:var(--lcars-red);color:#fff;">OVERDUE</button>
-              <button class="task-filter-btn" onclick="purgeCompleted()" style="background:var(--lcars-red);color:#fff;">PURGE</button>
-            </div>
-            <div id="taskList"></div>
-            <div class="task-stats" id="taskStats"></div>
-          </div>
-        </div>
-        <div class="panel purple" style="margin-top:10px;">
+        <div class="panel purple">
           <div class="panel-header">Captain's Log</div>
           <div class="panel-body">
-            <textarea id="logEntry" style="width:100%;height:80px;background:rgba(0,10,25,0.8);color:var(--lcars-lightblue);border:1px solid var(--lcars-purple);border-radius:6px;padding:10px;font-family:inherit;font-size:13px;resize:vertical;" placeholder="Record your log entry..."></textarea>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+              <button id="voiceLogBtn" onclick="toggleVoiceLog()" style="padding:8px 16px;font-family:var(--lcars-font);font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;border:none;border-radius:999px;cursor:pointer;color:#fff;background:var(--lcars-red);box-shadow:0 0 0 1px rgba(0,0,0,.25) inset;display:flex;align-items:center;gap:6px;transition:all 0.3s ease;">
+                <span id="voiceDot" style="width:10px;height:10px;border-radius:50%;background:#fff;display:inline-block;"></span>
+                DICTATE LOG
+              </button>
+              <span id="voiceStatus" style="color:var(--lcars-lavender);font-size:11px;letter-spacing:1px;font-family:var(--lcars-mono);"></span>
+            </div>
+            <textarea id="logEntry" style="width:100%;height:120px;background:rgba(0,10,25,0.8);color:var(--lcars-lightblue);border:1px solid var(--lcars-purple);border-radius:6px;padding:10px;font-family:inherit;font-size:13px;resize:vertical;" placeholder="Record your log entry..."></textarea>
             <div style="display:flex;gap:8px;margin-top:8px;">
               <button class="task-add-btn" style="background:var(--lcars-purple);" onclick="addLogEntry()">RECORD ENTRY</button>
+              <button class="task-add-btn" style="background:var(--lcars-orange);color:#000;" onclick="clearLogEntry()">CLEAR</button>
               <button class="task-add-btn" style="background:var(--lcars-red);color:#fff;" onclick="clearAllLogs()">CLEAR ALL</button>
             </div>
-            <div id="logEntries" style="margin-top:12px;max-height:300px;overflow-y:auto;"></div>
+            <div id="logEntries" style="margin-top:12px;max-height:450px;overflow-y:auto;"></div>
           </div>
         </div>
       </div>
@@ -579,7 +581,7 @@
     <div class="footer-elbow"></div>
     <div class="footer-bar">
       <div class="footer-segment" style="background:var(--lcars-teal);">47-ALPHA</div>
-      <div class="footer-segment" style="background:var(--lcars-gold);">SEC LVL 4</div>
+      <div class="footer-segment" style="background:var(--lcars-orange);cursor:pointer;" onclick="purgeMemory()">PURGE MEMORY</div>
       <div class="footer-segment" style="background:var(--lcars-blue);" id="footerAlert">ALL CLEAR</div>
       <div class="footer-status" id="footerStatus">LCARS INTERFACE ACTIVE — ALL SYSTEMS NOMINAL</div>
     </div>
@@ -654,7 +656,7 @@ var starMapData = [
   {name:'Deneb',dist:2600.0,spectral:'A2Ia',mag:1.25,x:-1800.0,y:1880.0,constellation:'Cygnus',color:'#e6f3ff'}
 ];
 var captainsLog = [];
-var panelTitles = { ops:'OPERATIONS', tactical:'TACTICAL', science:'SCIENCE', comms:'COMMUNICATIONS', computer:'COMPUTER CORE', files:'DATABASE ACCESS', notepad:"CAPTAIN'S LOG", settings:'CONFIGURATION', starmap:'STELLAR CARTOGRAPHY' };
+var panelTitles = { ops:'OPERATIONS', tasks:'MISSION TASKS', tactical:'TACTICAL', science:'SCIENCE', comms:'COMMUNICATIONS', computer:'COMPUTER CORE', files:'DATABASE ACCESS', notepad:"CAPTAIN'S LOG", settings:'CONFIGURATION', starmap:'STELLAR CARTOGRAPHY' };
 
 // === TAURI INVOKE HELPER ===
 function tauriInvoke(cmd, args) {
@@ -1319,14 +1321,25 @@ function getStardate() {
 }
 
 function addLogEntry() {
+  if (voiceIsListening) stopVoiceLog();
   var textarea = document.getElementById('logEntry');
   var text = textarea.value.trim();
   if (!text) return;
   playBeep();
   captainsLog.unshift({ stardate: getStardate(), text: text, time: new Date().toISOString() });
   textarea.value = '';
+  voiceSessionId = null;
+  document.getElementById('voiceStatus').textContent = 'ENTRY RECORDED';
   saveLog();
   renderLog();
+}
+
+function clearLogEntry() {
+  if (voiceIsListening) stopVoiceLog();
+  document.getElementById('logEntry').value = '';
+  voiceSessionId = null;
+  document.getElementById('voiceStatus').textContent = '';
+  playClick();
 }
 
 function deleteLogEntry(idx) {
@@ -1364,6 +1377,98 @@ function renderLog() {
     html += '</div>';
   });
   container.innerHTML = html;
+}
+
+// === VOICE DICTATION FOR CAPTAIN'S LOG ===
+var voiceIsListening = false;
+var voiceSessionId = null;
+var voiceElapsedTimer = null;
+var voicePollTimer = null;
+var voiceElapsed = 0;
+
+function generateSessionId() {
+  return 'xxxxxxxxxxxx'.replace(/x/g, function() {
+    return Math.floor(Math.random() * 16).toString(16);
+  });
+}
+
+function formatElapsed(secs) {
+  var m = Math.floor(secs / 60);
+  var s = secs % 60;
+  return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+}
+
+function toggleVoiceLog() {
+  if (voiceIsListening) { stopVoiceLog(); return; }
+  startVoiceLog();
+}
+
+function stopVoiceLog() {
+  var sid = voiceSessionId;
+  voiceIsListening = false;
+  clearInterval(voiceElapsedTimer);
+  clearInterval(voicePollTimer);
+  if (sid) tauriInvoke('stop_dictation', { sessionId: sid }).catch(function() {});
+  var btn = document.getElementById('voiceLogBtn');
+  btn.classList.remove('voice-recording');
+  btn.innerHTML = '<span id="voiceDot" style="width:10px;height:10px;border-radius:50%;background:#fff;display:inline-block;"></span> DICTATE LOG';
+  document.getElementById('voiceStatus').textContent = 'DICTATION COMPLETE — ' + formatElapsed(voiceElapsed);
+}
+
+function startVoiceLog() {
+  voiceIsListening = true;
+  voiceElapsed = 0;
+  voiceSessionId = generateSessionId();
+  var sid = voiceSessionId;
+
+  document.getElementById('logEntry').value = '';
+  var btn = document.getElementById('voiceLogBtn');
+  btn.classList.add('voice-recording');
+  btn.innerHTML = '<span id="voiceDot" style="width:10px;height:10px;border-radius:50%;background:#ff4444;display:inline-block;animation:pulse 0.6s ease-in-out infinite;"></span> END LOG';
+  if (typeof playBeep === 'function') playBeep();
+
+  document.getElementById('voiceStatus').textContent = 'RECORDING 00:00';
+  voiceElapsedTimer = setInterval(function() {
+    voiceElapsed++;
+    document.getElementById('voiceStatus').textContent = 'RECORDING ' + formatElapsed(voiceElapsed);
+  }, 1000);
+
+  // Poll for real-time transcription using this session's ID
+  voicePollTimer = setInterval(function() {
+    if (voiceSessionId !== sid) { clearInterval(voicePollTimer); return; }
+    tauriInvoke('poll_dictation', { sessionId: sid }).then(function(status) {
+      if (!status || voiceSessionId !== sid) return;
+      var textarea = document.getElementById('logEntry');
+      if (status.indexOf('PARTIAL:') === 0) {
+        var partial = status.substring(8);
+        if (partial && partial !== 'LISTENING') {
+          textarea.value = partial;
+          textarea.scrollTop = textarea.scrollHeight;
+        }
+      } else if (status.indexOf('FINAL:') === 0) {
+        var finalText = status.substring(6);
+        if (finalText) {
+          textarea.value = finalText;
+          textarea.scrollTop = textarea.scrollHeight;
+        }
+      }
+    }).catch(function() {});
+  }, 500);
+
+  // start_dictation blocks until Swift app exits — do NOT write to textarea on resolve
+  tauriInvoke('start_dictation', { durationSecs: 1800, sessionId: sid }).then(function() {
+    if (voiceSessionId !== sid) return;
+    stopVoiceLog();
+  }).catch(function(err) {
+    if (voiceSessionId !== sid) return;
+    var errMsg = String(err);
+    if (errMsg.indexOf('not authorized') >= 0 || errMsg.indexOf('denied') >= 0) {
+      document.getElementById('voiceStatus').textContent = 'SPEECH ACCESS DENIED — CHECK SYSTEM SETTINGS';
+    } else {
+      document.getElementById('voiceStatus').textContent = 'ERROR — SEE CONSOLE';
+    }
+    stopVoiceLog();
+  });
 }
 
 function addTask() {
@@ -1540,6 +1645,73 @@ function updateTimeTheme() {
   }
 }
 
+// === MEMORY PURGE ===
+var autoPurgeEnabled = false;
+var autoPurgeInterval = null;
+
+function purgeMemory() {
+  var statusEl = document.getElementById('purgeStatus');
+  if (statusEl) statusEl.textContent = 'PURGING...';
+  statusEl.style.color = 'var(--lcars-gold)';
+
+  // Try Tauri invoke first
+  if (window.__TAURI_INTERNALS__ && window.__TAURI_INTERNALS__.invoke) {
+    window.__TAURI_INTERNALS__.invoke('purge_memory').then(function(result) {
+      if (statusEl) {
+        statusEl.textContent = 'MEMORY PURGED';
+        statusEl.style.color = '#00ff00';
+        setTimeout(function() { statusEl.textContent = ''; }, 5000);
+      }
+    }).catch(function(err) {
+      // Fallback: try shell command via Tauri
+      if (window.__TAURI_INTERNALS__.invoke) {
+        window.__TAURI_INTERNALS__.invoke('run_shell_command', { command: 'osascript', args: ['-e', 'do shell script "purge" with administrator privileges'] }).then(function() {
+          if (statusEl) {
+            statusEl.textContent = 'MEMORY PURGED';
+            statusEl.style.color = '#00ff00';
+            setTimeout(function() { statusEl.textContent = ''; }, 5000);
+          }
+        }).catch(function(e) {
+          if (statusEl) {
+            statusEl.textContent = 'ERROR: ' + (e.message || e);
+            statusEl.style.color = 'var(--lcars-red)';
+          }
+        });
+      }
+    });
+  } else {
+    // Browser / Electron fallback - not available
+    if (statusEl) {
+      statusEl.textContent = 'REQUIRES BACKEND';
+      statusEl.style.color = 'var(--lcars-red)';
+      setTimeout(function() { statusEl.textContent = ''; }, 3000);
+    }
+  }
+}
+
+function toggleAutoPurge() {
+  autoPurgeEnabled = !autoPurgeEnabled;
+  var btn = document.getElementById('autoPurgeBtn');
+  if (btn) {
+    btn.textContent = autoPurgeEnabled ? 'AUTO: ON' : 'AUTO: OFF';
+    btn.style.background = autoPurgeEnabled ? 'var(--lcars-blue)' : 'var(--lcars-teal)';
+  }
+
+  if (autoPurgeEnabled) {
+    // Run every hour (3600000ms)
+    autoPurgeInterval = setInterval(purgeMemory, 3600000);
+    var statusEl = document.getElementById('purgeStatus');
+    if (statusEl) statusEl.textContent = 'AUTO PURGE: HOURLY';
+  } else {
+    if (autoPurgeInterval) {
+      clearInterval(autoPurgeInterval);
+      autoPurgeInterval = null;
+    }
+    var statusEl = document.getElementById('purgeStatus');
+    if (statusEl) statusEl.textContent = '';
+  }
+}
+
 // === DASHBOARD SYNC ===
 function updateDashboard() {
   // Mirror clock
@@ -1568,9 +1740,20 @@ function updateDashboard() {
   tasks.forEach(function(t2){if(!t2.done){active++;if(t2.due&&t2.due<now2)overdue++;}});
   var ts=document.getElementById('dashTaskSummary');
   if(ts) ts.textContent=active+' active'+(overdue>0?' · '+overdue+' overdue':'');
-  // Latest log
+  // Latest log entries
   var ll=document.getElementById('dashLatestLog');
-  if(ll) ll.textContent=captainsLog.length>0?'SD '+captainsLog[0].stardate+': '+captainsLog[0].text.substring(0,60)+'...':'';
+  if(ll){
+    if(captainsLog.length===0){ ll.textContent='No entries'; }
+    else{
+      var logHtml='';
+      var showCount=Math.min(captainsLog.length,3);
+      for(var li=0;li<showCount;li++){
+        var entry=captainsLog[li];
+        logHtml+='<div style="margin-bottom:3px;">SD '+entry.stardate+': '+entry.text.substring(0,50)+(entry.text.length>50?'...':'')+'</div>';
+      }
+      ll.innerHTML=logHtml;
+    }
+  }
 }
 
 // === SHIELDS ===
@@ -1695,6 +1878,9 @@ function launchApp(name) {
 // === MAIN LOOP ===
 function startSystems() {
   initBgStarfield(); initStarfield3D(); initStarMap(); initOpsStarMap(); initFilesBrowser(); loadTasks(); loadLog();
+  // Clear the log entry box on startup
+  var logBox = document.getElementById('logEntry');
+  if (logBox) logBox.value = '';
   setInterval(updateSystems, 2000);
   setInterval(updateClock, 1000);
   setInterval(updateShields, 3000);
@@ -1749,7 +1935,7 @@ function startSystems() {
 // === KEYBOARD ===
 document.addEventListener('keydown',function(e){
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
-  if(e.key==='1')switchPanel('ops');else if(e.key==='2')switchPanel('tactical');else if(e.key==='3')switchPanel('science');else if(e.key==='4')switchPanel('comms');else if(e.key==='5')switchPanel('computer');else if(e.key==='6')switchPanel('files');else if(e.key==='7')switchPanel('notepad');else if(e.key==='8')switchPanel('settings');else if(e.key==='9')switchPanel('starmap');
+  if(e.key==='1')switchPanel('ops');else if(e.key==='2')switchPanel('tasks');else if(e.key==='3')switchPanel('tactical');else if(e.key==='4')switchPanel('science');else if(e.key==='5')switchPanel('comms');else if(e.key==='6')switchPanel('computer');else if(e.key==='7')switchPanel('files');else if(e.key==='8')switchPanel('notepad');else if(e.key==='9')switchPanel('settings');else if(e.key==='0')switchPanel('starmap');
 });
 window.addEventListener('resize',function(){var c=document.getElementById('starfield');c.width=window.innerWidth;c.height=window.innerHeight;initBgStarfield();});
 

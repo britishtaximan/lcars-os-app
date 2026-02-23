@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>LCARS OS needs microphone access for Captain's Log voice dictation.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>LCARS OS uses speech recognition to transcribe Captain's Log voice entries.</string>
+</dict>
+</plist>
